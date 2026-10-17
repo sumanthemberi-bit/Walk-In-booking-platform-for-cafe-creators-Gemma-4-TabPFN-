@@ -1,5 +1,18 @@
+# Private data and secrets: never commit these
 platform.db
+platform.db-*
 .secret_key
-__pycache__/
 backups/
 uploads/
+mail.json
+ngrok_domain.txt
+.env
+
+# Python and tooling
+__pycache__/
+*.pyc
+.venv/
+venv/
+*.log
+.DS_Store
+Thumbs.db

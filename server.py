@@ -31,6 +31,7 @@ import media
 import notify
 import predict
 import backup
+import guard
 import prompts
 import samples
 import vault
@@ -854,12 +855,14 @@ def api_message(request: Request, kind: str = Form(...), language: str = Form("E
             + (f"Session: {booking}\n" if booking else "")
             + (f"UPI ID: {p['upi']}\n" if kind == "Payment reminder" and p.get("upi") else ""))
     try:
-        text = llm.generate(prompts.message_prompt(p, language, kind), user)
+        text, problems, _ = guard.generate_checked(llm.generate, prompts.message_prompt(p, language, kind), user,
+                                                   language, notes)
     except Exception as e:
         return JSONResponse({"error": f"The local AI didn't respond: {e}"}, status_code=503)
     mid = db.add_message(uid, client, phone, kind, service, notes or booking, text)
     digits = "".join(ch for ch in phone if ch.isdigit())
-    return {"id": mid, "text": text, "wa": f"https://wa.me/{digits}" if digits else ""}
+    return {"id": mid, "text": text, "wa": f"https://wa.me/{digits}" if digits else "",
+            "warning": ("Please read this one carefully: " + " ".join(guard.RULE_TEXT[f] for f in problems)) if problems else ""}
 
 
 @app.post("/api/message/{mid}/sent")

@@ -17,6 +17,7 @@
   <div data-f="booking"><label>Day, time and venue of the session</label><input name="booking" value="{{ pre.booking or '' }}" placeholder="Saturday 5:30 PM at Blondie Khar"></div>
   <button class="btn full" id="go">Draft message</button>
   <div id="result" hidden>
+    <p class="small" id="warn" hidden style="color:var(--warn);margin:12px 0 0"></p>
     <label>Edit before sending</label>
     <textarea id="text" rows="5"></textarea>
     <div class="actions">
@@ -53,6 +54,7 @@ f.onsubmit = async (e) => { e.preventDefault();
   const j = await ai(f, document.getElementById("go"));
   document.querySelectorAll("[data-f] textarea, [data-f] input").forEach(i => i.disabled = false);
   if(!j) return; mid = j.id; wa = j.wa; text.value = j.text;
+  const warn = document.getElementById("warn"); warn.textContent = j.warning || ""; warn.hidden = !j.warning;
   document.getElementById("result").hidden = false; updateWa(); text.focus(); };
 function updateWa(){ waBtn.hidden = !wa; if(wa) waBtn.href = wa + "?text=" + encodeURIComponent(text.value); }
 text.oninput = updateWa;

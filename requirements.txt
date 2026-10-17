@@ -6,4 +6,5 @@ itsdangerous
 requests
 pandas
 qrcode[pil]
+Pillow
 tabpfn

@@ -145,9 +145,9 @@
   <div class="hero-in">
     <div class="poster" style="--tint:{{ tint }}">{% if page.photo %}<img src="/media/{{ page.photo }}" alt="{{ page.name }}">{% elif page.cover %}<img src="/media/{{ page.cover }}" alt="{{ page.name }}">{% else %}<b>{{ page.name[:1]|upper }}</b>{% endif %}</div>
     <div>
-      <h1>{{ page.name }}{% if page.sample %} <span class="pill done" style="vertical-align:6px">Demo</span>{% endif %}{% if page.verified %} <span class="vtick" title="Verified: met in person by the Walk-In team">✓</span>{{ tip("<b>Verified</b>: the Walk-In team has met this creator in person, at the cafe where they work.", "What does verified mean?") }}{% endif %}</h1>
+      <h1>{{ page.name }}{% if page.verified %} <span class="vtick" title="Verified: met in person by the Walk-In team">✓</span>{{ tip("<b>Verified</b>: the Walk-In team has met this creator in person, at the cafe where they work.", "What does verified mean?") }}{% endif %}</h1>
       <div class="sub">{{ page.craft }}{% if page.areas %}, {{ page.areas }}{% elif page.city %}, {{ page.city }}{% endif %}</div>
-      <div class="meta">{% if from_price %}<span>From {{ from_price }}</span>{% endif %}{% if langs %}<span>{{ langs }}</span>{% endif %}{% if services|length %}<span>{{ services|length }} service{{ 's' if services|length > 1 }}</span>{% endif %}</div>
+      <div class="meta">{% if page.sample %}<span>Demo creator</span>{% endif %}{% if from_price %}<span>From {{ from_price }}</span>{% endif %}{% if langs %}<span>{{ langs }}</span>{% endif %}{% if services|length %}<span>{{ services|length }} service{{ 's' if services|length > 1 }}</span>{% endif %}</div>
       {% if status %}<div class="status {{ 'live' if status.live }}"><i></i>{{ status.text }}{{ tip("Where this creator is sitting next. A green dot means they're at the cafe right now, so you can also just walk up.", "Where they are") }}</div>{% endif %}
       <div class="quick">
         {% if page.booking_open %}<a class="btn" href="#book">Book now</a>{% endif %}

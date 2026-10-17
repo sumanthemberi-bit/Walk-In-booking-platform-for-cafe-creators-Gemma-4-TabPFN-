@@ -1,7 +1,7 @@
 """Dummy creators, tagged "Demo" on every page, so the marketplace never looks empty.
 
 Invented creators at invented cafes. They're added automatically when Walk-In starts.
-Each has a login (demo_<name> / DEMO_PASSWORD) so the Creator studio side can be shown too.
+Each has a login so the Creator studio side can be shown too; the admin sees the password on the Platform page.
 """
 import re
 import io
@@ -14,7 +14,17 @@ from PIL import Image, ImageDraw, ImageFilter
 import db
 import media
 
-DEMO_PASSWORD = "walkin-demo-2026"
+def _demo_password() -> str:
+    """Never stored in the code: set WALKIN_DEMO_PASSWORD, or it's derived from this install's private .secret_key.
+    The admin sees it on the Platform page."""
+    import hashlib, hmac, os
+    import vault
+    if os.getenv("WALKIN_DEMO_PASSWORD"):
+        return os.environ["WALKIN_DEMO_PASSWORD"]
+    return "demo-" + hmac.new(bytes.fromhex(vault.key()), b"walkin-demo-login", hashlib.sha256).hexdigest()[:10]
+
+
+DEMO_PASSWORD = _demo_password()
 
 # name, craft, areas, venue, [(weekdays, start, end)], services, bio, (colour1, colour2), pattern, has_cover
 SAMPLES = [
