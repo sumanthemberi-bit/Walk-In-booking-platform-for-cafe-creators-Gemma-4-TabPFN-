@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% block head %}
+<style>
+.filters{display:flex;gap:6px;overflow-x:auto;margin:4px 0 8px;border-bottom:1px solid var(--line)}
+.filters a{flex:none;padding:10px 12px;color:var(--muted);font-weight:600;font-size:.92rem;border-bottom:2px solid transparent;margin-bottom:-1px}
+.filters a.on{color:var(--ink);border-bottom-color:var(--brand)}
+.filters a:hover{text-decoration:none;color:var(--ink)}
+.bk{padding:16px 0;border-bottom:1px solid var(--line)}
+.bk .top{display:flex;justify-content:space-between;gap:12px;align-items:baseline}
+.bk .name{font-weight:700;font-size:1.02rem}
+.bk dl{display:grid;grid-template-columns:80px 1fr;gap:3px 12px;margin:8px 0 0;font-size:.92rem}
+.bk dt{color:var(--muted)} .bk dd{margin:0}
+.bk .quote{margin:8px 0 0;color:var(--muted);font-size:.92rem;white-space:pre-wrap}
+</style>
+{% endblock %}
+{% block body %}
+{% set f = request.query_params.get('show', 'open') %}
+{% set newc = rows | selectattr('status','equalto','new') | list | length %}
+{% set conf = rows | selectattr('status','equalto','confirmed') | list | length %}
+{% set canc = rows | selectattr('status','equalto','cancelled') | list | length %}
+<div class="ph"><div><h1>Bookings{{ tip("<b>New</b>: waiting for you to confirm. <b>Confirmed</b>: you've said yes, and the customer was told. <b>Done</b>: the session happened. <b>Cancelled</b>: the customer cancelled from their booking link, and the time is free again.", "What the statuses mean") }}</h1><p>Requests customers sent from your booking page.</p></div></div>
+<nav class="filters">
+  <a href="?show=open" class="{{ 'on' if f == 'open' }}">To do ({{ newc + conf }})</a>
+  <a href="?show=new" class="{{ 'on' if f == 'new' }}">New ({{ newc }})</a>
+  <a href="?show=confirmed" class="{{ 'on' if f == 'confirmed' }}">Confirmed ({{ conf }})</a>
+  <a href="?show=cancelled" class="{{ 'on' if f == 'cancelled' }}">Cancelled ({{ canc }})</a>
+  <a href="?show=all" class="{{ 'on' if f == 'all' }}">All</a>
+</nav>
+{% if rows %}
+<p class="small muted" style="margin:10px 0 0">{{ rows|length }} booking{{ 's' if rows|length != 1 }} so far · {{ rows | selectattr('status','in',['confirmed','done']) | list | length }} confirmed or done · {{ canc }} cancelled by customers · {{ repeat_customers }} repeat customer{{ 's' if repeat_customers != 1 }}</p>{% endif %}
+{% set shown = rows | selectattr('status','in', ['new','confirmed']) | list if f == 'open' else (rows if f == 'all' else rows | selectattr('status','equalto', f) | list) %}
+{% if not shown %}
+<p class="muted" style="margin-top:20px">Nothing here yet. When customers book from your page, their requests show up here.</p>
+<a class="btn ghost sm" href="/app/qr.png" download="{{ slug }}-qr.png">Download your QR code</a>
+{% endif %}
+{% for b in shown %}
+<article class="bk">
+  <div class="top"><span class="name">{{ b.name }}</span><span class="pill {{ b.status }}">{{ b.status|capitalize }}</span></div>
+  <dl>
+    <dt>When</dt><dd><b>{{ b.preferred or 'Not set' }}</b></dd>
+    <dt>Service</dt><dd>{{ b.service or 'Not chosen' }}</dd>
+    <dt>WhatsApp</dt><dd>{{ b.phone }}</dd>
+    {% if b.email %}<dt>Email</dt><dd>{{ b.email }}</dd>{% endif %}
+    <dt>Requested</dt><dd>{{ b.created|nicedate }}</dd>
+  </dl>
+  {% if b.note %}<p class="quote">"{{ b.note }}"</p>{% endif %}
+  <div class="actions">
+    {% if b.status == 'new' %}
+      <form method="post" action="/app/bookings/{{ b.id }}/confirmed"><button class="btn ok sm">Confirm{{ ' and email' if b.email and gmail }}</button></form>
+      <form method="post" action="/app/bookings/{{ b.id }}/declined"><button class="btn ghost sm">Decline</button></form>
+    {% elif b.status == 'confirmed' %}
+      <form method="post" action="/app/bookings/{{ b.id }}/done"><button class="btn ghost sm">Mark as done</button></form>
+    {% endif %}
+    {% set digits = b.phone | select('in', '0123456789') | join %}
+    {% if digits %}<a class="btn ghost sm" href="https://wa.me/{{ digits }}" target="_blank">Message on WhatsApp</a>{% endif %}
+  </div>
+  {% if b.email %}
+  <details style="margin-top:12px">
+    <summary class="small">Reply by email</summary>
+    {% if gmail %}
+    <form method="post" action="/app/bookings/{{ b.id }}/email">
+      <label>Subject</label><input name="subject" required value="Your {{ b.service or 'session' }} booking">
+      <label>Message</label><textarea name="text" rows="6" required></textarea>
+      <div class="actions">
+        <button type="button" class="btn ghost sm draft" data-id="{{ b.id }}">Write it for me</button>
+        <button class="btn sm">Send email</button>
+      </div>
+    </form>
+    {% else %}
+    <p class="small muted">Email isn't set up on this platform yet.</p>
+    {% endif %}
+  </details>
+  {% endif %}
+</article>
+{% endfor %}
+{% endblock %}
+{% block script %}
+<script>
+document.querySelectorAll(".draft").forEach(btn => btn.onclick = async () => {
+  const form = btn.closest("form"), f = document.createElement("form");
+  f.action = `/api/bookings/${btn.dataset.id}/draft-email`;
+  const j = await ai(f, btn);
+  if(j){ form.subject.value = j.subject; form.text.value = j.text; }
+});
+</script>
+{% endblock %}

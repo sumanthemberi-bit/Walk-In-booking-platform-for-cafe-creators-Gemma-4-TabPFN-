@@ -1,0 +1,165 @@
+{% extends "base.html" %}
+{% block head %}
+<style>
+.photos{display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap}
+.ph-prev{background:var(--sunken);border:1px dashed #CCC;border-radius:8px;display:grid;place-items:center;overflow:hidden;margin-bottom:8px;color:var(--faint)}
+.ph-prev img{width:100%;height:100%;object-fit:cover;display:block}
+.ph-prev.sq{width:120px;height:120px}
+.ph-prev.wide{width:100%;max-width:340px;aspect-ratio:16/9}
+.photos label.btn{margin:0}
+</style>
+{% endblock %}
+{% block body %}
+<h1>My page{{ tip("Everything here shows on your public booking page, except the parts marked private.", "My page") }}</h1>
+<p class="muted">Everything here except the UPI ID and voice samples shows on <a href="{{ public_url }}" target="_blank">your public page</a>. Save and it updates instantly.</p>
+<form method="post" action="/app/profile" enctype="multipart/form-data">
+  <div class="card" id="photos">
+    <h3>Photos</h3>
+    <p class="small muted" style="margin-top:0">Pages with real photos get far more bookings. Use a clear photo of you, and a wide cover photo of your table, your cards or your work.</p>
+    <div class="photos">
+      <div>
+        <div class="ph-prev sq">{% if profile.photo %}<img src="/media/{{ profile.photo }}" alt="Your profile photo">{% else %}<svg class="i"><use href="#i-camera"/></svg>{% endif %}</div>
+        <label for="photo" class="btn ghost sm">{{ 'Change' if profile.photo else 'Add' }} profile photo</label>
+        <input id="photo" name="photo" type="file" accept="image/*" hidden>
+        {% if profile.photo %}<label class="check small"><input type="checkbox" name="remove_photo"> Remove</label>{% endif %}
+      </div>
+      <div style="flex:1;min-width:0">
+        <div class="ph-prev wide">{% if profile.cover %}<img src="/media/{{ profile.cover }}" alt="Your cover photo">{% else %}<svg class="i"><use href="#i-camera"/></svg>{% endif %}</div>
+        <label for="cover" class="btn ghost sm">{{ 'Change' if profile.cover else 'Add' }} cover photo</label>
+        <input id="cover" name="cover" type="file" accept="image/*" hidden>
+        {% if profile.cover %}<label class="check small"><input type="checkbox" name="remove_cover"> Remove</label>{% endif %}
+      </div>
+    </div>
+    <p class="small muted" id="picked"></p>
+  </div>
+  <div class="card">
+    <h3>About you</h3>
+    <div class="row stack">
+      <div><label>Name</label><input name="name" value="{{ profile.name }}"></div>
+      <div><label>What you do</label><select name="craft">{% for c in CRAFTS %}<option {{ 'selected' if profile.craft == c }}>{{ c }}</option>{% endfor %}</select></div>
+      <div><label>City</label><input name="city" value="{{ profile.city }}"></div>
+    </div>
+    <div>
+      <label>Areas you work in <span class="muted small">(customers can filter by these)</span>{{ tip("Neighbourhoods, separated by commas, like <b>Khar, Juhu</b>. They become filter chips on the Walk-In homepage.", "Areas") }}</label>
+      <input name="areas" value="{{ profile.areas or '' }}" placeholder="e.g. Khar, Juhu, Bandra">
+      <div><label>Page address{{ tip("The end of your link, like walk-in…/u/<b>your-name</b>. Changing it breaks QR codes you've already printed.", "Page address") }}</label><input name="slug" value="{{ slug }}" autocapitalize="none"></div>
+    </div>
+    <label>A few words about you <span class="muted small">(the AI turns this into a bio)</span></label>
+    <input name="bio_notes" id="bio_notes" value="{{ profile.bio_notes }}" placeholder="reading cards for 6 years, calm, no fear-mongering">
+    <button type="button" class="btn ghost sm" style="margin-top:8px" id="biobtn">Write my bio for me</button>
+    <label>Bio</label>
+    <textarea name="bio" id="bio">{{ profile.bio }}</textarea>
+  </div>
+
+  <div class="card">
+    <h3>Services & timings</h3>
+    <label>Services & prices <span class="muted small">(one per line)</span>{{ tip("Write each like <b>Love reading · 20 min · ₹500</b>. The name, duration and price show as separate parts on your page.", "Services format") }}</label>
+    <textarea name="services" rows="5" placeholder="Clarity Drop · 5-6 min · ₹999&#10;Soul Spread · 30 min · ₹3,333">{{ profile.services }}</textarea>
+    <label>Where & when to find you <span class="muted small">(one per line)</span></label>
+    <textarea name="schedule" rows="4" placeholder="Weekends 3 – 8 PM · Blondie, Khar&#10;Online on Google Meet, booked ahead">{{ profile.schedule }}</textarea>
+    <label style="display:flex;gap:10px;align-items:center;font-weight:500"><input type="checkbox" name="booking_open" style="width:auto" {{ 'checked' if profile.booking_open }}> Let customers send booking requests from my page</label>
+  </div>
+
+  <div class="card">
+    <h3>Contact</h3>
+    <div class="row stack">
+      <div><label>WhatsApp number</label><input name="whatsapp" inputmode="tel" value="{{ profile.whatsapp }}" placeholder="91 98xxxxxxx"></div>
+      <div><label>Instagram</label><input name="instagram" value="{{ profile.instagram }}" placeholder="@yourhandle"></div>
+    </div>
+    <label>UPI ID <span class="muted small">(private, only used in payment reminders)</span></label>
+    <input name="upi" value="{{ profile.upi }}" placeholder="name@upi">
+  </div>
+
+  <div class="card" id="voice">
+    <h3>Your voice <span class="muted small">(private)</span>{{ tip("Paste 3 or 4 messages you've really sent to clients. The AI copies your greetings, sign-offs and tone. Customers never see this.", "Your voice") }}</h3>
+    <p class="muted small" style="margin-top:0">Paste 3–5 messages you've sent customers. Remove their names. The AI copies your tone.</p>
+    <textarea name="voice_samples" rows="8">{{ profile.voice_samples }}</textarea>
+  </div>
+  <button class="btn full">Save</button>
+</form>
+
+
+<div class="card" id="email">
+  <h3>Booking emails{{ tip("Get an email for every new booking. Customers who leave an email get a receipt and a confirmation, sent by Walk-In on your behalf.", "Booking emails") }}</h3>
+  <p class="small muted" style="margin-top:0">When a customer books, you get an email, and they get a "request received" email if they left one. When you tap <b>Confirm</b>, they get "booking confirmed". All automatic.</p>
+  <form method="post" action="/app/alerts/save">
+    <label>Your email for booking alerts</label>
+    <div style="display:flex;gap:8px"><input name="alert_email" type="email" autocapitalize="none" value="{{ profile.alert_email or profile.smtp_email or '' }}" placeholder="you@gmail.com"><button class="btn sm">Save</button></div>
+  </form>
+  {% if not email_ready %}<p class="small" style="color:var(--warn)">Emails aren't switched on for this platform yet. {{ 'Connect the platform email on the Platform tab.' if is_admin else 'The platform admin is setting this up.' }}</p>{% endif %}
+  <div class="actions">
+    <form method="post" action="/app/alerts/test"><button class="btn ghost sm" onclick="this.textContent='Sending…'">Send test alert</button></form>
+    {% if profile.alert_email or profile.smtp_email %}
+    <form method="post" action="/app/alerts/save"><input type="hidden" name="email_alerts" value="{{ 'off' if profile.email_alerts != false else 'on' }}"><button class="btn ghost sm">{{ 'Pause' if profile.email_alerts != false else 'Resume' }} my alerts</button></form>
+    {% endif %}
+  </div>
+
+  <details style="margin-top:12px">
+    <summary class="small">Optional: send customer emails from your own Gmail{% if gmail_connected %} (connected){% endif %}</summary>
+    {% if gmail_connected %}
+    <p class="small">Customer emails go from <b>{{ profile.smtp_email }}</b> instead of the platform address.</p>
+    <form method="post" action="/app/email/disconnect" onsubmit="return confirm('Disconnect your Gmail and delete the stored password?')"><button class="btn danger sm">Disconnect my Gmail</button></form>
+    {% else %}
+    <p class="small muted">By default, customer emails come from the platform "on behalf of" you. To send from your own address instead, create a Google <a href="https://myaccount.google.com/apppasswords" target="_blank">app password</a> (2-Step Verification needed) and paste it here. It's stored encrypted.</p>
+    <form method="post" action="/app/email/connect">
+      <label>Gmail address</label><input name="address" type="email" required placeholder="you@gmail.com" autocapitalize="none">
+      <label>App password</label><input name="app_password" required autocomplete="off" autocapitalize="none" placeholder="abcd efgh ijkl mnop">
+      <button class="btn ghost full" onclick="this.textContent='Checking with Gmail…'">Connect my Gmail</button>
+    </form>
+    {% endif %}
+  </details>
+</div>
+<div class="card" id="alerts">
+  <h3>How you hear about new bookings{{ tip("Walk-In can't send WhatsApp messages by itself. WhatsApp only allows that for paid business accounts. So you're told in the ways below instead.", "Why not WhatsApp?") }}</h3>
+  <ul class="hear">
+    <li class="on"><b>Bookings tab in Walk-In</b><span>Always on. Every request shows up there, with a red number on the tab.</span></li>
+    <li class="{{ 'on' if (profile.alert_email or profile.smtp_email) and profile.email_alerts != false and email_ready else '' }}"><b>Email</b><span>{% if (profile.alert_email or profile.smtp_email) and email_ready %}{{ 'On' if profile.email_alerts != false else 'Paused' }}: sent to {{ profile.alert_email or profile.smtp_email }}.{% else %}Off. Add your email in <a href="#email">Booking emails</a> above.{% endif %}</span></li>
+    <li class="{{ 'on' if profile.ntfy_topic }}"><b>Phone notification (instant)</b><span>{% if profile.ntfy_topic %}On. Make sure you've subscribed in the ntfy app (below).{% else %}Off. The fastest way to know. Set it up below in a minute.{% endif %}</span></li>
+    <li><b>WhatsApp, only if the customer chooses</b><span>After booking, customers can tap "Message on WhatsApp" to say hi. It's optional, so don't rely on it. Your booking is already in Walk-In.</span></li>
+  </ul>
+  <details style="margin-top:8px" {{ 'open' if not profile.ntfy_topic }}>
+    <summary class="small">{{ 'Phone notification settings' if profile.ntfy_topic else 'Turn on instant phone notifications (free ntfy app)' }}</summary>
+    {% if profile.ntfy_topic %}
+    <ol class="small" style="padding-left:18px;line-height:1.6">
+      <li>Install the free <b>ntfy</b> app (<a href="https://play.google.com/store/apps/details?id=io.heckel.ntfy" target="_blank">Android</a> · <a href="https://apps.apple.com/app/ntfy/id1625396347" target="_blank">iPhone</a>).</li>
+      <li>Tap <b>+</b> and paste this private topic name:</li>
+    </ol>
+    <div style="display:flex;gap:8px"><input id="topic" readonly value="{{ profile.ntfy_topic }}"><button type="button" class="btn ghost sm" onclick="copyText(document.getElementById('topic'), this)">Copy</button></div>
+    <div class="actions" style="margin-top:8px">
+      <form method="post" action="/app/alerts/test"><button class="btn ghost sm">Send a test notification</button></form>
+      <form method="post" action="/app/alerts/ntfy-off"><button class="btn ghost sm">Turn off</button></form>
+    </div>
+    {% else %}
+    <p class="small muted">Your phone buzzes the moment someone books, even when Walk-In is closed. Keep the topic name private: anyone with it can see your booking alerts.</p>
+    <form method="post" action="/app/alerts/ntfy-on"><button class="btn sm">Turn on phone notifications</button></form>
+    {% endif %}
+  </details>
+</div>
+<style>
+.hear{list-style:none;padding:0;margin:6px 0 0}
+.hear li{position:relative;padding:9px 0 9px 28px;border-bottom:1px solid var(--line)}
+.hear li:last-child{border-bottom:0}
+.hear li::before{content:"";position:absolute;left:4px;top:13px;width:12px;height:12px;border-radius:50%;border:2px solid var(--line)}
+.hear li.on::before{background:var(--ok);border-color:var(--ok)}
+.hear b{display:block;font-size:.95rem}
+.hear span{font-size:.86rem;color:var(--muted)}
+</style>
+{% endblock %}
+{% block script %}
+<script>
+["photo","cover"].forEach(id => { const f = document.getElementById(id); if(!f) return;
+  f.onchange = () => { if(!f.files[0]) return;
+    const box = f.parentElement.querySelector(".ph-prev"); box.innerHTML = "";
+    const img = new Image(); img.src = URL.createObjectURL(f.files[0]); box.appendChild(img);
+    document.getElementById("picked").textContent = "Tap Save at the bottom to upload."; }; });
+</script>
+<script>
+document.getElementById("biobtn").onclick = async (e) => {
+  const notes = document.getElementById("bio_notes").value.trim();
+  if(!notes){ alert("Write a few words about yourself first."); return; }
+  const f = document.createElement("form"); f.action = "/api/bio";
+  const i = document.createElement("input"); i.name = "notes"; i.value = notes; f.appendChild(i);
+  const j = await ai(f, e.target); if(j) document.getElementById("bio").value = j.text;
+};
+</script>
+{% endblock %}

@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Choose a new password · Walk-In{% endblock %}
+{% block head %}<style>.wrap{max-width:440px}.auth{padding-top:24px}</style>{% endblock %}
+{% block body %}
+<div class="auth">
+<a class="brand" href="/"><span class="mark">W</span>Walk-In</a>
+{% if valid %}
+<h1 style="margin-top:28px">Choose a new password</h1>
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+<form method="post" action="/reset/{{ token }}">
+  <label for="np">New password</label><input id="np" name="new" type="password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters">
+  <label for="np2">New password again</label><input id="np2" name="again" type="password" required minlength="8" autocomplete="new-password">
+  <button class="btn full">Save and log in</button>
+</form>
+{% else %}
+<h1 style="margin-top:28px">This link has expired</h1>
+<p class="muted">Reset links work for 1 hour, and only once.</p>
+<a class="btn full" href="/forgot">Send a new link</a>
+{% endif %}
+</div>
+{% endblock %}

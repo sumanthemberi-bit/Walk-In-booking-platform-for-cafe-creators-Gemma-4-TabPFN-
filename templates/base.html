@@ -1,0 +1,328 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FFFFFF">
+<meta name="color-scheme" content="light">
+<title>{% block title %}Walk-In{% endblock %}</title>
+<link rel="icon" href="/static/favicon.png" type="image/png">
+<link rel="apple-touch-icon" href="/static/apple-touch-icon.png">
+<link rel="manifest" href="/manifest.webmanifest">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="Walk-In">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --page:#F5F5F5; --surface:#FFFFFF; --sunken:#F2F2F2; --ink:#333333; --muted:#666666; --faint:#999999; --line:#E6E6E6;
+  --brand:#F84464; --brand-hover:#E23757; --brand-ink:#FFFFFF; --brand-soft:#FDEBEF;
+  --bar:#FFFFFF; --bar-ink:#333333; --bar-muted:#666666;
+  --slot:#1EA83C; --slot-soft:#EAF7ED;
+  --ok:#1EA83C; --ok-soft:#EAF7ED; --warn:#8F5A00; --warn-soft:#FFF3D6; --danger:#C2261D; --danger-soft:#FDECEA;
+  --r-sm:8px; --r:10px; --r-lg:14px; --shadow:0 1px 2px rgba(21,23,28,.04), 0 8px 24px rgba(21,23,28,.06);
+  --side:248px; --tabbar:64px;
+}
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--page);color:var(--ink);font:15.5px/1.55 Roboto,system-ui,-apple-system,"Segoe UI",sans-serif;-webkit-font-smoothing:antialiased}
+a{color:var(--brand);text-decoration:none} a:hover{text-decoration:underline}
+h1,h2,h3{line-height:1.2;margin:0 0 .35em;letter-spacing:-.015em}
+h1{font-size:1.6rem;font-weight:700} h2{font-size:1.2rem;font-weight:700} h3{font-size:1.02rem;font-weight:700}
+p{margin:.4em 0}
+svg.i{width:20px;height:20px;flex:none;stroke:currentColor;fill:none;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+:focus-visible{outline:2px solid var(--brand);outline-offset:2px;border-radius:6px}
+
+/* ---------- app shell ---------- */
+.wrap{max-width:760px;margin:0 auto;padding:20px 16px calc(var(--tabbar) + 40px)}
+.public .wrap{padding-bottom:120px}
+.appbar{position:sticky;top:0;z-index:20;display:flex;align-items:center;justify-content:space-between;gap:12px;
+  padding:10px 16px;background:#fff;color:var(--ink);box-shadow:0 1px 0 var(--line)}
+.appbar .brand{color:var(--bar-ink)}
+.brand{display:inline-flex;align-items:center;gap:8px;font-weight:900;font-size:1.1rem;color:var(--ink);letter-spacing:-.01em}
+.brand:hover{text-decoration:none}
+.brand .mark{width:28px;height:28px;border-radius:6px;background:var(--brand);color:#fff;display:grid;place-items:center;font-size:.9rem;font-weight:900}
+.avatar{width:34px;height:34px;border-radius:50%;background:var(--brand);color:#fff;display:grid;place-items:center;font-weight:700;font-size:.85rem}
+.tabbar{position:fixed;left:0;right:0;bottom:0;z-index:30;height:calc(var(--tabbar) + env(safe-area-inset-bottom));padding-bottom:env(safe-area-inset-bottom);
+  display:grid;grid-template-columns:repeat(5,1fr);background:var(--surface);border-top:1px solid var(--line)}
+.tabbar a,.tabbar button{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--faint);font:600 .63rem/1 inherit;letter-spacing:-.01em;white-space:nowrap;overflow:hidden;background:none;border:0;cursor:pointer;position:relative}
+.tabbar a:hover{text-decoration:none}
+.tabbar .on{color:var(--brand)}
+.dot{position:absolute;top:8px;left:calc(50% + 6px);min-width:18px;height:18px;padding:0 5px;border-radius:9px;background:var(--danger);color:#fff;font-size:.68rem;font-weight:700;display:grid;place-items:center}
+.side{display:none}
+@media (min-width:960px){
+  .tabbar,.appbar .menu-btn{display:none}
+  .side{display:flex;flex-direction:column;position:fixed;inset:0 auto 0 0;width:var(--side);padding:18px 12px;background:#fff;color:var(--ink);border-right:1px solid var(--line)}
+  .side .brand{color:var(--bar-ink)}
+  .side .brand{padding:4px 10px 18px}
+  .side nav a{display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--r-sm);color:var(--bar-muted);font-weight:500;font-size:.95rem;position:relative}
+  .side nav a:hover{background:var(--sunken);text-decoration:none;color:var(--ink)}
+  .side nav a.on{background:var(--brand-soft);color:var(--brand);font-weight:500}
+  .side nav .count{margin-left:auto;background:var(--danger);color:#fff;border-radius:9px;font-size:.72rem;padding:1px 7px}
+  .side .me{margin-top:auto;display:flex;align-items:center;gap:10px;padding:12px;border-top:1px solid var(--line)}
+  .side .me a{color:var(--muted)}
+  
+  .has-side .appbar{display:none}
+  .has-side main{margin-left:var(--side)} .has-side .wrap{padding-top:28px}
+  .wrap{padding-bottom:48px}
+}
+.sheet{border:0;padding:0;border-radius:var(--r-lg) var(--r-lg) 0 0;width:100%;max-width:520px;margin:auto auto 0;background:var(--surface);color:var(--ink)}
+.sheet::backdrop{background:rgba(10,12,16,.45)}
+.sheet .grab{width:40px;height:4px;border-radius:2px;background:var(--line);margin:10px auto 4px}
+.sheet a,.sheet button.row-link{display:flex;align-items:center;gap:14px;width:100%;padding:14px 20px;color:var(--ink);font:600 .98rem inherit;background:none;border:0;text-align:left;cursor:pointer}
+.sheet a:hover,.sheet button.row-link:hover{background:var(--sunken);text-decoration:none}
+
+/* ---------- public site header (customer side) ---------- */
+.site{background:#fff}
+.site .bar1{max-width:1180px;margin:0 auto;display:flex;align-items:center;gap:16px;padding:10px 16px}
+.site .search{flex:1;max-width:520px;position:relative}
+.site .search input{padding-left:38px;border-radius:6px;font-size:.92rem;height:38px;padding-top:6px;padding-bottom:6px}
+.site .search svg.i{position:absolute;left:11px;top:9px;width:19px;height:19px;color:var(--faint)}
+.site .city{display:flex;align-items:center;gap:4px;color:var(--ink);font-size:.92rem;white-space:nowrap}
+.site .signin{background:var(--brand);color:#fff;border-radius:5px;padding:6px 14px;font-size:.85rem;font-weight:500;white-space:nowrap}
+.site .signin:hover{text-decoration:none;background:var(--brand-hover)}
+.site .bar2{background:var(--sunken);border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
+.site .bar2 .in{max-width:1180px;margin:0 auto;display:flex;gap:22px;overflow-x:auto;padding:9px 16px;scrollbar-width:none;font-size:.9rem}
+.site .bar2 .in::-webkit-scrollbar{display:none}
+.site .bar2 a{color:var(--ink);white-space:nowrap}
+.site .bar2 a.on{color:var(--brand)}
+.site .bar2 .right{margin-left:auto;display:flex;gap:22px;color:var(--muted)}
+.site .bar2 .right a{color:var(--muted);font-size:.85rem}
+@media (max-width:700px){.site .search{display:none}.site .bar1{justify-content:space-between}.site .bar2 .right{display:none}}
+.msearch{display:none;padding:0 16px 10px;position:relative}
+.msearch svg.i{position:absolute;left:27px;top:10px;width:19px;height:19px;color:var(--faint)}
+.msearch input{padding-left:38px;height:40px}
+@media (max-width:700px){.msearch{display:block}}
+
+/* ---------- page header ---------- */
+.ph{display:flex;align-items:flex-end;justify-content:space-between;gap:12px;margin:4px 0 16px}
+.ph p{color:var(--muted);margin:2px 0 0}
+
+/* ---------- surfaces ---------- */
+.card{background:var(--surface);padding:18px 16px;margin:10px -16px;border:0}
+@media (min-width:600px){.card{margin:12px 0;border-radius:var(--r);border:1px solid var(--line)}}
+.card > h3:first-child,.card > h2:first-child{margin-top:0}
+.section-title{font-size:.95rem;font-weight:700;margin:24px 2px 8px;color:var(--ink)}
+.muted{color:var(--muted)} .small{font-size:.86rem} .faint{color:var(--faint)}
+.list > *{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 0;border-bottom:1px solid var(--line)}
+.list > *:last-child{border-bottom:0}
+.list a.item{color:var(--ink)} .list a.item:hover{text-decoration:none;color:var(--brand)}
+.list a.item svg.i{color:var(--faint)}
+
+/* ---------- forms ---------- */
+label{display:block;font-weight:600;font-size:.86rem;margin:14px 0 6px;color:var(--ink)}
+input,select,textarea{width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:var(--r-sm);padding:11px 12px;transition:border-color .15s}
+input:hover,select:hover,textarea:hover{border-color:color-mix(in srgb,var(--line) 50%,var(--muted))}
+input:focus,select:focus,textarea:focus{outline:none;border-color:var(--brand);box-shadow:0 0 0 3px var(--brand-soft)}
+input[type=checkbox],input[type=radio]{width:auto;accent-color:var(--brand)}
+textarea{min-height:92px;resize:vertical}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:0 12px}
+@media (max-width:440px){.row.stack{grid-template-columns:1fr}}
+.check{display:flex;gap:10px;align-items:center;font-weight:500}
+
+/* ---------- buttons ---------- */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;font:inherit;font-weight:500;font-size:.95rem;border:1px solid transparent;border-radius:var(--r-sm);padding:10px 18px;background:var(--brand);color:var(--brand-ink);cursor:pointer;white-space:nowrap}
+.btn:hover{background:var(--brand-hover);text-decoration:none}
+.btn.full{width:100%;margin-top:18px}
+.btn.ghost{background:var(--surface);color:var(--ink);border-color:var(--line)}
+.btn.ghost:hover{background:var(--sunken)}
+.btn.ok{background:var(--ok);color:#fff} .btn.ok:hover{filter:brightness(.95)}
+.btn.danger{background:var(--surface);color:var(--danger);border-color:color-mix(in srgb,var(--danger) 35%,var(--line))}
+.btn.danger:hover{background:var(--danger-soft)}
+.btn.sm{min-height:36px;padding:6px 12px;font-size:.86rem}
+.btn.icon{padding:0;width:36px;min-height:36px}
+.btn[disabled]{opacity:.6;cursor:wait}
+.actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.actions form{margin:0}
+
+/* ---------- feedback ---------- */
+.flash{display:flex;gap:10px;align-items:flex-start;background:var(--ok-soft);color:var(--ink);border-radius:var(--r-sm);padding:12px 14px;margin:0 0 14px;font-size:.94rem}
+.flash.info{background:var(--brand-soft)}
+.error{background:var(--danger-soft);color:var(--danger);border-radius:var(--r-sm);padding:12px 14px;margin:12px 0;font-weight:600}
+.note{font-size:.86rem;color:var(--warn);background:var(--warn-soft);border-radius:var(--r-sm);padding:10px 12px;margin:10px 0}
+.lock{display:flex;gap:8px;align-items:center;font-size:.86rem;color:var(--ok);font-weight:600}
+.lock.off{color:var(--warn)}
+.lock::before{content:"";width:8px;height:8px;border-radius:50%;background:currentColor}
+
+/* ---------- data ---------- */
+.stats{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+@media (min-width:600px){.stats{grid-template-columns:repeat(4,1fr)}}
+.stat{padding:4px 0}
+.stat b{display:block;font-size:1.45rem;font-weight:800;letter-spacing:-.02em;font-variant-numeric:tabular-nums}
+.stat span{color:var(--muted);font-size:.8rem;font-weight:500}
+table{width:100%;border-collapse:collapse;font-size:.9rem}
+th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:top}
+th{color:var(--muted);font-weight:600;font-size:.78rem}
+td.num,th.num{text-align:right;font-variant-numeric:tabular-nums}
+.card table tr:last-child td{border-bottom:0}
+.scroll{overflow-x:auto}
+.pill{display:inline-flex;align-items:center;gap:6px;padding:3px 10px;border-radius:999px;font-size:.76rem;font-weight:700;white-space:nowrap}
+.pill.new{background:var(--brand-soft);color:var(--brand)} .pill.confirmed{background:var(--ok-soft);color:var(--ok)}
+.pill.done,.pill.declined,.pill.cancelled{background:var(--sunken);color:var(--faint)}
+.vtick{display:inline-grid;place-items:center;width:18px;height:18px;border-radius:50%;background:#1E88E5;color:#fff;font-size:.7rem;font-weight:700;vertical-align:2px}
+.setup-list{list-style:none;padding:0;margin:8px 0 0}.setup-list li{display:flex;gap:12px;align-items:flex-start;padding:10px 0;border-bottom:1px solid var(--line)}.setup-list li:last-child{border-bottom:0}.setup-list .sbox{flex:none;width:22px;height:22px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-size:.75rem;color:#fff;margin-top:1px}.setup-list li.ok .sbox{background:var(--ok);border-color:var(--ok)}.setup-list li.ok a{color:var(--muted);text-decoration:line-through}.setup-list li div span{display:block;font-size:.86rem;color:var(--muted)}.setup-bar{height:6px;border-radius:9px;background:var(--sunken);overflow:hidden;margin-top:8px}.setup-bar i{display:block;height:100%;background:var(--ok)}
+.bar{height:8px;border-radius:4px;background:var(--brand);opacity:.85}
+details summary{cursor:pointer;font-weight:600;list-style:none;display:flex;align-items:center;gap:8px}
+details summary::-webkit-details-marker{display:none}
+details summary::before{content:"";width:7px;height:7px;border-right:2px solid var(--faint);border-bottom:2px solid var(--faint);transform:rotate(-45deg);transition:transform .15s;margin-right:2px}
+details[open] summary::before{transform:rotate(45deg)}
+.out{white-space:pre-wrap;background:var(--sunken);border-radius:var(--r-sm);padding:14px;margin-top:12px}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{margin:0;font-weight:600}
+.chip input{position:absolute;opacity:0;width:1px;height:1px}
+.chip span{display:inline-flex;align-items:center;min-height:38px;padding:7px 14px;border:1px solid var(--line);border-radius:999px;font-size:.88rem;background:var(--surface);cursor:pointer;user-select:none}
+.chip input:checked+span{background:var(--brand);color:#fff;border-color:var(--brand)}
+.chip input:focus-visible+span{outline:2px solid var(--brand);outline-offset:2px}
+.hp{position:absolute;left:-9999px}
+/* help markers */
+.tip{display:inline-grid;place-items:center;width:20px;height:20px;min-height:0;padding:0;margin:0 0 0 6px;border-radius:50%;border:1.5px solid var(--faint);background:transparent;color:var(--muted);font:700 .72rem/1 inherit;cursor:pointer;vertical-align:2px;flex:none}
+.tip:hover,.tip[aria-expanded=true]{border-color:var(--brand);color:#fff;background:var(--brand)}
+.tipbox{position:fixed;z-index:1000;max-width:300px;background:#2B2D3A;color:#fff;font-size:.88rem;font-weight:400;line-height:1.45;padding:11px 14px;border-radius:10px;box-shadow:0 8px 24px rgba(0,0,0,.25)}
+.tipbox b{color:#FFD9E0}
+/* sample tag */
+.stag{position:absolute;top:8px;left:8px;background:rgba(255,255,255,.92);color:#333;font-size:.68rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:4px}
+/* creator studio: visibly different from the customer site */
+.ctag{font-size:.62rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;background:#2B2D3A;color:#fff;padding:3px 7px;border-radius:4px;margin-left:2px}
+.has-side .appbar{background:#2B2D3A;box-shadow:none}
+.has-side .appbar .brand{color:#fff}
+.has-side .appbar .ctag{background:var(--brand)}
+.studio{display:flex;align-items:center;justify-content:space-between;gap:10px;background:#2B2D3A;color:#E8E8EE;font-size:.84rem;padding:9px 14px;border-radius:10px;margin:0 0 16px}
+.studio a{color:#fff;font-weight:600;white-space:nowrap}
+.studio .i{width:15px;height:15px;vertical-align:-3px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important;animation:none!important}}
+</style>
+{% block head %}{% endblock %}
+</head>
+<body class="{% if me %}has-side{% endif %} {% block bodyclass %}{% endblock %}">
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-home" viewBox="0 0 24 24"><path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V20h5v-6h4v6h5V9.5"/></symbol>
+  <symbol id="i-inbox" viewBox="0 0 24 24"><path d="M4 13h4l2 3h4l2-3h4"/><path d="M5.5 5h13L21 13v6H3v-6z"/></symbol>
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 10h17M8 3v4M16 3v4"/></symbol>
+  <symbol id="i-chat" viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-11.6 7.1L4 20l1-4A8 8 0 1 1 20 12z"/></symbol>
+  <symbol id="i-more" viewBox="0 0 24 24"><circle cx="5" cy="12" r="1.3"/><circle cx="12" cy="12" r="1.3"/><circle cx="19" cy="12" r="1.3"/></symbol>
+  <symbol id="i-log" viewBox="0 0 24 24"><path d="M5 4h11l3 3v13H5z"/><path d="M8 10h8M8 14h8M8 18h5"/></symbol>
+  <symbol id="i-chart" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></symbol>
+  <symbol id="i-post" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="4.5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r=".6"/></symbol>
+  <symbol id="i-user" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></symbol>
+  <symbol id="i-shield" viewBox="0 0 24 24"><path d="M12 3 4.5 6v6c0 4.5 3.2 7.8 7.5 9 4.3-1.2 7.5-4.5 7.5-9V6z"/></symbol>
+  <symbol id="i-gear" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></symbol>
+  <symbol id="i-out" viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3 2"/></symbol>
+  <symbol id="i-search" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></symbol>
+  <symbol id="i-star" viewBox="0 0 24 24"><path d="m12 3 2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/></symbol>
+  <symbol id="i-camera" viewBox="0 0 24 24"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></symbol>
+  <symbol id="i-chev" viewBox="0 0 24 24"><path d="m9 6 6 6-6 6"/></symbol>
+  <symbol id="i-back" viewBox="0 0 24 24"><path d="m15 6-6 6 6 6"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></symbol>
+  <symbol id="i-qr" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="6" height="6" rx="1"/><rect x="14.5" y="3.5" width="6" height="6" rx="1"/><rect x="3.5" y="14.5" width="6" height="6" rx="1"/><path d="M14.5 14.5h2v2h-2zM18.5 18.5h2v2h-2zM14.5 18.5h2M18.5 14.5h2"/></symbol>
+  <symbol id="i-share" viewBox="0 0 24 24"><path d="M12 15V3M7 8l5-5 5 5"/><path d="M5 13v6a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2v-6"/></symbol>
+  <symbol id="i-wa" viewBox="0 0 24 24"><path d="M3.5 20.5 5 16a8.5 8.5 0 1 1 3 3z"/><path d="M9 8.5c0 3.5 3 6.5 6.5 6.5l1-1.5-2-1-1 1c-1-.5-2-1.5-2.5-2.5l1-1-1-2z"/></symbol>
+  <symbol id="i-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2.5"/><path d="m4 7 8 6 8-6"/></symbol>
+  <symbol id="i-spark" viewBox="0 0 24 24"><path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2.5 2.5M15.5 15.5 18 18M6 18l2.5-2.5M15.5 8.5 18 6"/></symbol>
+  <symbol id="i-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></symbol>
+  <symbol id="i-ext" viewBox="0 0 24 24"><path d="M14 4h6v6M20 4l-9 9M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></symbol>
+</svg>
+
+{% if me %}
+{% set t = request.url.path %}
+<aside class="side">
+  <a class="brand" href="/app"><span class="mark">W</span>Walk-In <span class="ctag">Creator</span></a>
+  <nav>
+    <a href="/app" class="{{ 'on' if t == '/app' }}"><svg class="i"><use href="#i-home"/></svg>Home</a>
+    <a href="/app/bookings" class="{{ 'on' if t.startswith('/app/bookings') }}"><svg class="i"><use href="#i-inbox"/></svg>Bookings{% if counts.new_bookings %}<span class="count">{{ counts.new_bookings }}</span>{% endif %}</a>
+    <a href="/app/schedule" class="{{ 'on' if t.startswith('/app/schedule') }}"><svg class="i"><use href="#i-cal"/></svg>Schedule</a>
+    <a href="/app/messages" class="{{ 'on' if t.startswith('/app/messages') }}"><svg class="i"><use href="#i-chat"/></svg>Messages</a>
+    <a href="/app/post" class="{{ 'on' if t.startswith('/app/post') }}"><svg class="i"><use href="#i-post"/></svg>Social posts</a>
+    <a href="/app/log" class="{{ 'on' if t.startswith('/app/log') }}"><svg class="i"><use href="#i-log"/></svg>Sittings log</a>
+    <a href="/app/slots" class="{{ 'on' if t.startswith('/app/slots') }}"><svg class="i"><use href="#i-chart"/></svg>Best slots</a>
+    <a href="/app/profile" class="{{ 'on' if t.startswith('/app/profile') }}"><svg class="i"><use href="#i-user"/></svg>My page</a>
+    <a href="/app/data" class="{{ 'on' if t.startswith('/app/data') }}"><svg class="i"><use href="#i-shield"/></svg>My data</a>
+    {% if is_admin %}<a href="/app/admin" class="{{ 'on' if t.startswith('/app/admin') }}"><svg class="i"><use href="#i-gear"/></svg>Platform</a>{% endif %}
+  </nav>
+  <div class="me">
+    <span class="avatar">{{ (profile.name or me.username)[:1]|upper }}</span>
+    <span class="small" style="flex:1;min-width:0"><b style="display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">{{ profile.name or me.username }}</b><a href="{{ public_url }}" target="_blank">View my page</a></span>
+    <form method="post" action="/logout"><button class="btn ghost icon" title="Log out" aria-label="Log out"><svg class="i"><use href="#i-out"/></svg></button></form>
+  </div>
+</aside>
+<header class="appbar">
+  <a class="brand" href="/app"><span class="mark">W</span>Walk-In <span class="ctag">Creator</span></a>
+  <a class="avatar" href="/app/profile" aria-label="My page">{{ (profile.name or me.username)[:1]|upper }}</a>
+</header>
+<nav class="tabbar" aria-label="Main">
+  <a href="/app" class="{{ 'on' if t == '/app' }}"><svg class="i"><use href="#i-home"/></svg>Home</a>
+  <a href="/app/bookings" class="{{ 'on' if t.startswith('/app/bookings') }}"><svg class="i"><use href="#i-inbox"/></svg>Bookings{% if counts.new_bookings %}<span class="dot">{{ counts.new_bookings }}</span>{% endif %}</a>
+  <a href="/app/schedule" class="{{ 'on' if t.startswith('/app/schedule') }}"><svg class="i"><use href="#i-cal"/></svg>Schedule</a>
+  <a href="/app/messages" class="{{ 'on' if t.startswith('/app/messages') }}"><svg class="i"><use href="#i-chat"/></svg>Messages</a>
+  <button type="button" onclick="document.getElementById('more').showModal()" class="{{ 'on' if t.startswith(('/app/post','/app/log','/app/slots','/app/profile','/app/data','/app/admin')) }}"><svg class="i"><use href="#i-more"/></svg>More</button>
+</nav>
+<dialog class="sheet" id="more" onclick="if(event.target===this)this.close()">
+  <div class="grab"></div>
+  <a href="/app/profile"><svg class="i"><use href="#i-user"/></svg>My page</a>
+  <a href="/app/post"><svg class="i"><use href="#i-post"/></svg>Social posts</a>
+  <a href="/app/log"><svg class="i"><use href="#i-log"/></svg>Sittings log</a>
+  <a href="/app/slots"><svg class="i"><use href="#i-chart"/></svg>Best slots</a>
+  <a href="/app/data"><svg class="i"><use href="#i-shield"/></svg>My data</a>
+  {% if is_admin %}<a href="/app/admin"><svg class="i"><use href="#i-gear"/></svg>Platform</a>{% endif %}
+  <a href="{{ public_url }}" target="_blank"><svg class="i"><use href="#i-ext"/></svg>View my public page</a>
+  <form method="post" action="/logout" style="border-top:1px solid var(--line);padding-bottom:calc(10px + env(safe-area-inset-bottom))"><button class="row-link"><svg class="i"><use href="#i-out"/></svg>Log out</button></form>
+</dialog>
+{% endif %}
+
+<main class="wrap">
+  {% if me and request.url.path.startswith('/app') %}<div class="studio"><span>Creator studio: only you see this side.{{ tip("Walk-In has two sides. <b>Customers</b> browse the public site and book you without an account. <b>You</b> manage bookings, your schedule and messages here, in the Creator studio.", "What is the Creator studio?") }}</span><a href="{{ public_url }}" target="_blank">Customer view <svg class="i"><use href="#i-ext"/></svg></a></div>{% endif %}
+  {% if flash %}<div class="flash" role="status"><svg class="i" style="color:var(--ok)"><use href="#i-check"/></svg><span>{{ flash }}</span></div>{% endif %}
+  {% block body %}{% endblock %}
+</main>
+<script>
+// Submit a form to a JSON endpoint, show a loading state, return the parsed reply.
+async function ai(form, btn, label){
+  const old = btn.innerHTML; btn.disabled = true; btn.textContent = label || "Writing…";
+  try{
+    const r = await fetch(form.action, {method:"POST", body:new FormData(form)});
+    const j = await r.json(); if(!r.ok) throw new Error(j.error || j.detail || "Something went wrong");
+    return j;
+  }catch(e){ alert(e.message); return null; }
+  finally{ btn.disabled = false; btn.innerHTML = old; }
+}
+async function copyText(el, btn){
+  const old = btn.textContent;
+  try{ await navigator.clipboard.writeText(el.value ?? el.textContent); btn.textContent = "Copied"; }
+  catch{ (el.select && el.select()); btn.textContent = "Press Ctrl+C"; }
+  setTimeout(()=>btn.textContent=old, 1500);
+}
+</script>
+<script>
+/* Help markers: tap or hover a (?) to read what a feature does. Esc or tap elsewhere to close. */
+(function(){
+  let box = null, owner = null;
+  const safe = t => t.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/&lt;(\/?)b&gt;/g,"<$1b>");
+  function close(){ if(box){ box.remove(); box = null; } if(owner){ owner.setAttribute("aria-expanded","false"); owner = null; } }
+  function open(btn){
+    close(); owner = btn; btn.setAttribute("aria-expanded","true");
+    box = document.createElement("div"); box.className = "tipbox"; box.setAttribute("role","tooltip");
+    box.innerHTML = safe(btn.dataset.tip); document.body.appendChild(box);
+    const r = btn.getBoundingClientRect(), bw = box.offsetWidth, bh = box.offsetHeight;
+    let left = Math.min(Math.max(8, r.left + r.width/2 - bw/2), innerWidth - bw - 8);
+    let top = r.bottom + 8; if(top + bh > innerHeight - 8) top = Math.max(8, r.top - bh - 8);
+    box.style.left = left + "px"; box.style.top = top + "px";
+  }
+  document.addEventListener("click", e => {
+    const b = e.target.closest(".tip");
+    if(b){ e.preventDefault(); e.stopPropagation(); owner === b ? close() : open(b); return; }
+    if(!e.target.closest(".tipbox")) close();
+  }, true);
+  document.addEventListener("keydown", e => { if(e.key === "Escape") close(); });
+  addEventListener("scroll", close, {passive:true}); addEventListener("resize", close);
+  if(matchMedia("(hover:hover)").matches){
+    document.addEventListener("mouseover", e => { const b = e.target.closest(".tip"); if(b && owner !== b) open(b); });
+    document.addEventListener("mouseout", e => { const b = e.target.closest(".tip"); if(b && !(e.relatedTarget && e.relatedTarget.closest && e.relatedTarget.closest(".tip"))) close(); });
+  }
+})();
+</script>
+<script>if("serviceWorker" in navigator) navigator.serviceWorker.register("/sw.js").catch(()=>{});</script>
+{% block script %}{% endblock %}
+</body>
+</html>

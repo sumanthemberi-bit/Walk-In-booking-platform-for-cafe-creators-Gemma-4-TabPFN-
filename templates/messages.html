@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>Messages{{ tip("Type a few words and the AI drafts a WhatsApp message in your voice. Nothing is sent automatically: you edit it, then tap <b>Open in WhatsApp</b> and send it yourself.", "How Messages works") }}</h1>
+<p class="muted">Drafted by Gemma running locally. Client notes never go to an outside AI service.</p>
+<form class="card" id="f" method="post" action="/api/message">
+  <div class="row">
+    <div><label>Type{{ tip("<b>After a session</b>: a personal thank-you. <b>Booking confirmation</b>: day, time and place. <b>Gentle nudge</b>: for someone you haven't seen in a while. <b>Payment reminder</b>: polite, with your UPI ID.", "Message types") }}</label><select name="kind" id="kind">{% for k in MESSAGE_TYPES %}<option {{ 'selected' if pre.kind == k }}>{{ k }}</option>{% endfor %}</select></div>
+    <div><label>Language{{ tip("<b>Hinglish</b> is Hindi written in English letters, the way most people text.", "Languages") }}</label><select name="language">{% for l in LANGS %}<option>{{ l }}</option>{% endfor %}</select></div>
+    <div><label>Client first name</label><input name="client" required value="{{ pre.client or '' }}"></div>
+    <div><label>WhatsApp (optional)</label><input name="phone" inputmode="tel" value="{{ pre.phone or '' }}" placeholder="91…"></div>
+  </div>
+  <label>Service</label>
+  {% if services %}<select name="service">{% for s in services %}<option {{ 'selected' if pre.service == s }}>{{ s }}</option>{% endfor %}<option value="">Other</option></select>
+  {% else %}<input name="service" value="{{ pre.service or '' }}">{% endif %}
+  <div data-f="notes"><label>What came up? <span class="muted small">(a few words)</span>{{ tip("Private notes that make the message personal. The AI hints at sensitive things gently and never quotes them back word for word.", "Notes") }}</label><textarea name="notes" rows="2" placeholder="career confusion, drew the Star, interview next week"></textarea></div>
+  <div data-f="next_spot"><label>Where you'll be next / open slots</label><input name="next_spot" value="{{ next_spot }}" placeholder="Saturday 3 PM onwards at Blondie Khar"></div>
+  <div data-f="booking"><label>Day, time and venue of the session</label><input name="booking" value="{{ pre.booking or '' }}" placeholder="Saturday 5:30 PM at Blondie Khar"></div>
+  <button class="btn full" id="go">Draft message</button>
+  <div id="result" hidden>
+    <label>Edit before sending</label>
+    <textarea id="text" rows="5"></textarea>
+    <div class="actions">
+      <a class="btn ok" id="wa" target="_blank" hidden>Open in WhatsApp</a>
+      <button type="button" class="btn ghost" id="copy">Copy</button>
+      <button type="button" class="btn ghost" id="sent">Mark as sent</button>
+    </div>
+  </div>
+</form>
+
+{% if history %}
+<div class="card">
+  <h3>Recent</h3>
+  {% for m in history %}
+  <div style="padding:10px 0;border-bottom:1px solid var(--line)">
+    <div class="small"><b>{{ m.client }}</b> · {{ m.kind }} {% if m.sent %}<span class="pill confirmed">sent</span>{% endif %}</div>
+    <div class="small muted" style="white-space:pre-wrap">{{ m.text }}</div>
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+{% endblock %}
+{% block script %}
+<script>
+const FIELDS = {{ MESSAGE_TYPES | tojson }};
+const kind = document.getElementById("kind");
+function showFields(){ const need = FIELDS[kind.value].fields;
+  document.querySelectorAll("[data-f]").forEach(d => d.hidden = !need.includes(d.dataset.f)); }
+kind.onchange = showFields; showFields();
+let mid = null, wa = "";
+const f = document.getElementById("f"), text = document.getElementById("text"), waBtn = document.getElementById("wa");
+f.onsubmit = async (e) => { e.preventDefault();
+  document.querySelectorAll("[data-f][hidden] textarea, [data-f][hidden] input").forEach(i => i.disabled = true);
+  const j = await ai(f, document.getElementById("go"));
+  document.querySelectorAll("[data-f] textarea, [data-f] input").forEach(i => i.disabled = false);
+  if(!j) return; mid = j.id; wa = j.wa; text.value = j.text;
+  document.getElementById("result").hidden = false; updateWa(); text.focus(); };
+function updateWa(){ waBtn.hidden = !wa; if(wa) waBtn.href = wa + "?text=" + encodeURIComponent(text.value); }
+text.oninput = updateWa;
+document.getElementById("copy").onclick = (e) => copyText(text, e.target);
+document.getElementById("sent").onclick = async (e) => { if(!mid) return;
+  const fd = new FormData(); fd.append("text", text.value);
+  await fetch(`/api/message/${mid}/sent`, {method:"POST", body:fd}); e.target.textContent = "Marked as sent"; };
+</script>
+{% endblock %}

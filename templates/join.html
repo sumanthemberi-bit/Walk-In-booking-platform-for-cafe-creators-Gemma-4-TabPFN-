@@ -1,0 +1,39 @@
+{% extends "base.html" %}
+{% block title %}Join Walk-In{% endblock %}
+{% block head %}<style>
+.wrap{max-width:760px}.join{padding-top:24px}
+.pick{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:22px}
+@media (max-width:640px){.pick{grid-template-columns:1fr}}
+.pcard{display:flex;flex-direction:column;gap:8px;border-radius:14px;padding:22px;color:var(--ink);background:#fff;border:2px solid var(--line)}
+.pcard:hover{text-decoration:none;border-color:var(--brand)}
+.pcard.cr{background:#2B2D3A;color:#fff;border-color:#2B2D3A}
+.pcard.cr:hover{border-color:var(--brand)}
+.pcard .who{align-self:flex-start;font-size:.68rem;font-weight:800;letter-spacing:.08em;text-transform:uppercase;padding:3px 8px;border-radius:4px;background:var(--brand-soft);color:var(--brand)}
+.pcard.cr .who{background:var(--brand);color:#fff}
+.pcard h2{margin:4px 0 0;font-size:1.3rem}
+.pcard ul{margin:4px 0 8px;padding-left:18px;font-size:.92rem;line-height:1.6;opacity:.9}
+.pcard .go{margin-top:auto;font-weight:700;color:var(--brand)}
+.pcard.cr .go{color:#FF8FA3}
+</style>{% endblock %}
+{% block body %}
+<div class="join">
+<a class="brand" href="/"><span class="mark">W</span>Walk-In</a>
+<h1 style="margin-top:28px">How do you want to use Walk-In?</h1>
+<p class="muted">Pick one. You can always browse and book without an account.</p>
+<div class="pick">
+  <a class="pcard" href="/signup/customer">
+    <span class="who">Customer</span>
+    <h2>I want to book sessions</h2>
+    <ul><li>All your bookings in one place</li><li>Book faster: your details are filled in</li><li>Check, cancel or rebook in one tap</li></ul>
+    <span class="go">Create a customer account ›</span>
+  </a>
+  <a class="pcard cr" href="/signup">
+    <span class="who">Creator</span>
+    <h2>I offer a service at cafes</h2>
+    <ul><li>Your own booking page and QR code</li><li>Bookings inbox with email and phone alerts</li><li>Messages written in your voice</li></ul>
+    <span class="go">Create my creator page ›</span>
+  </a>
+</div>
+<p class="small muted" style="text-align:center;margin-top:22px">Already have an account? <a href="/login">Log in</a> · Just browsing? <a href="/">See creators</a></p>
+</div>
+{% endblock %}

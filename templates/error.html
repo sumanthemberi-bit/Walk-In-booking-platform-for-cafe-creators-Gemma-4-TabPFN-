@@ -1,0 +1,15 @@
+{% extends "base.html" %}
+{% block title %}{{ title }} · Walk-In{% endblock %}
+{% block head %}<style>.wrap{max-width:480px}.err{padding-top:40px;text-align:center}</style>{% endblock %}
+{% block body %}
+<div class="err">
+  <a class="brand" href="/" style="justify-content:center"><span class="mark">W</span>Walk-In</a>
+  <h1 style="margin-top:28px">{{ title }}</h1>
+  <p class="muted">{{ text }}</p>
+  <div class="actions" style="justify-content:center;margin-top:18px">
+    <a class="btn" href="/">Go to Walk-In</a>
+    <a class="btn ghost" href="javascript:history.back()">Go back</a>
+  </div>
+  <p class="small faint" style="margin-top:28px">Error {{ code }}{% if contact_email() %} · Still stuck? <a href="mailto:{{ contact_email() }}">{{ contact_email() }}</a>{% endif %}</p>
+</div>
+{% endblock %}

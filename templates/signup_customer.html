@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Create a customer account · Walk-In{% endblock %}
+{% block head %}{% include "_auth_style.html" %}{% endblock %}
+{% block body %}
+<div class="auth">
+<a class="brand" href="/"><span class="mark">W</span>Walk-In</a>
+<nav class="seg" aria-label="Account type">
+  <a class="on" href="/signup/customer" aria-current="page">I want to book<small>Customer account</small></a>
+  <a class="cr" href="/signup">I offer a service<small>Creator page</small></a>
+</nav>
+<div class="whoband"><span class="ic"><svg class="i"><use href="#i-user"/></svg></span><div><b>Customer account</b><span>For people who book sessions. See, cancel and rebook your bookings.</span></div></div>
+<h1 style="margin-top:18px">Create your customer account</h1>
+<p class="muted" style="margin-bottom:0">Optional, and free. You can still book without one.</p>
+<ul class="perks"><li>All your bookings in one place</li><li>Your details filled in when you book</li><li>Check, cancel or book again in one tap</li></ul>
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+<form method="post" action="/signup/customer">
+  <input type="hidden" name="next" value="{{ next or '' }}">
+  <label for="n">Your name</label>
+  <input id="n" name="name" required maxlength="80" autocomplete="name" value="{{ form.name if form }}">
+  <label for="e">Email <span class="faint">(you'll log in with this)</span></label>
+  <input id="e" name="email" type="email" required autocapitalize="none" autocomplete="email" value="{{ form.email if form }}">
+  <label for="ph">WhatsApp number{{ tip("Creators use it to confirm your booking. Only creators you book with can see it.", "Why WhatsApp?") }}</label>
+  <input id="ph" name="phone" required inputmode="tel" autocomplete="tel" value="{{ form.phone if form }}" placeholder="+91 98xxxxxxxx">
+  <label for="p">Password</label>
+  <input id="p" name="password" type="password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters">
+  <label style="display:flex;gap:10px;align-items:flex-start;font-weight:400;margin-top:14px"><input type="checkbox" name="agree" required style="width:auto;margin-top:4px"> <span class="small">I agree to the <a href="/terms" target="_blank">Terms</a> and <a href="/privacy" target="_blank">Privacy policy</a>.</span></label>
+  <button class="btn full">Create my account</button>
+</form>
+<p class="small muted" style="text-align:center;margin-top:18px">Already have an account? <a href="/login?as=customer">Log in</a></p>
+</div>
+{% endblock %}

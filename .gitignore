@@ -1,0 +1,5 @@
+platform.db
+.secret_key
+__pycache__/
+backups/
+uploads/

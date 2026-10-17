@@ -1,0 +1,199 @@
+{% extends "base.html" %}
+{% block title %}Walk-In: book tarot, mehendi and more at cafes{% if city != 'all' %} in {{ city }}{% endif %}{% endblock %}
+{% block bodyclass %}site-page{% endblock %}
+{% block head %}
+<style>
+.site-page .wrap{max-width:none;padding:0}
+.in{max-width:1180px;margin:0 auto;padding:0 16px}
+.slider{position:relative;max-width:1180px;margin:0 auto}
+.banners{display:flex;gap:12px;overflow-x:auto;scroll-snap-type:x mandatory;scroll-behavior:smooth;padding:16px 16px 4px;scrollbar-width:none}
+.sl-btn{position:absolute;top:calc(50% - 14px);transform:translateY(-50%);width:44px;height:44px;min-height:0;padding:0;border-radius:50%;border:0;background:rgba(255,255,255,.95);color:var(--ink);box-shadow:0 2px 10px rgba(0,0,0,.25);display:grid;place-items:center;cursor:pointer;z-index:2}
+.sl-btn:hover{background:#fff;color:var(--brand)}
+.sl-btn:disabled{opacity:0;pointer-events:none}
+.sl-btn .i{width:22px;height:22px}
+.sl-prev{left:26px}.sl-next{right:26px}
+.sl-dots{display:flex;justify-content:center;gap:7px;padding:8px 0 0}
+.sl-dots button{width:8px;height:8px;min-height:0;padding:0;border:0;border-radius:99px;background:#C9C9CF;cursor:pointer;transition:width .2s,background .2s}
+.sl-dots button.on{width:22px;background:var(--brand)}
+@media (hover:none){.sl-btn{display:none}}
+.banners::-webkit-scrollbar{display:none}
+.banner{flex:none;width:88%;aspect-ratio:21/9;border-radius:10px;overflow:hidden;position:relative;scroll-snap-align:center;background:#222;color:#fff}
+.banners.one .banner{width:100%}
+.banner img{width:100%;height:100%;object-fit:cover;display:block}
+.banner .cap{position:absolute;left:0;right:0;bottom:0;padding:40px 20px 16px;background:linear-gradient(transparent,rgba(0,0,0,.75))}
+.banner .cap b{display:block;font-size:clamp(1.1rem,3vw,1.8rem)}
+.banner .cap span{opacity:.85;font-size:.92rem}
+.banner:hover{text-decoration:none}
+.list-band{margin:16px auto 0;max-width:1148px;background:#fff;border-radius:10px;display:flex;align-items:center;justify-content:space-between;gap:16px;padding:18px 20px;flex-wrap:wrap}
+@media (max-width:1180px){.list-band{margin:16px 16px 0}}
+.list-band b{font-size:1.15rem;display:block}
+.list-band span{color:var(--muted);font-size:.92rem}
+.row-head{display:flex;align-items:baseline;justify-content:space-between;margin:28px 0 12px}
+.row-head h2{font-size:1.45rem;margin:0}
+.row-head a{font-size:.9rem}
+.strip{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(150px,1fr);gap:16px;overflow-x:auto;padding-bottom:6px;scrollbar-width:none}
+.strip::-webkit-scrollbar{display:none}
+@media (min-width:900px){.strip{grid-auto-columns:calc((100% - 64px)/5)}}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:22px 16px}
+@media (min-width:900px){.grid{grid-template-columns:repeat(5,1fr)}}
+.poster{color:var(--ink);display:block}
+.poster:hover{text-decoration:none}
+.poster .img{aspect-ratio:3/4;border-radius:8px;overflow:hidden;position:relative;background:#ddd}
+.poster .img img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .25s}
+.poster:hover .img img{transform:scale(1.03)}
+.poster .ph{width:100%;height:100%;display:flex;flex-direction:column;justify-content:flex-end;padding:14px 14px 46px;color:#fff}
+.poster .ph b{font-size:3.2rem;line-height:1;font-weight:900;opacity:.95}
+.poster .ph span{font-size:.8rem;opacity:.85;margin-top:6px}
+.poster .tag{position:absolute;left:0;right:0;bottom:0;background:rgba(0,0,0,.78);color:#fff;font-size:.8rem;padding:6px 10px;display:flex;align-items:center;gap:6px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.poster .tag i{width:7px;height:7px;border-radius:50%;background:#4CD964;flex:none}
+.poster .name{font-weight:500;font-size:1.02rem;margin-top:8px;line-height:1.3}
+.poster .meta{color:var(--muted);font-size:.88rem}
+.empty{background:#fff;border-radius:10px;padding:28px 20px;text-align:center;margin-top:16px}
+.how{background:#fff;margin-top:40px;padding:32px 0}
+.how h2{font-size:1.35rem}
+.how ol{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px;padding:0;list-style:none;counter-reset:s;margin:16px 0 0}
+.how li{counter-increment:s}
+.how li::before{content:counter(s);display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--brand-soft);color:var(--brand);font-weight:700;margin-bottom:8px}
+.how li b{display:block}
+.how li span{color:var(--muted);font-size:.93rem}
+.chips{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;padding:14px 0 2px;align-items:center}
+.chips::-webkit-scrollbar{display:none}
+.chips .lbl{font-size:.82rem;color:var(--muted);flex:none;margin-right:2px}
+.chip{flex:none;border:1px solid var(--line);background:#fff;color:var(--ink);border-radius:999px;padding:6px 14px;font-size:.88rem}
+.chip.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.chip:hover{text-decoration:none;border-color:var(--brand)}
+.guide{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:14px}
+.gcard{background:#fff;border-radius:10px;padding:16px;color:var(--ink);display:flex;flex-direction:column;gap:6px;border:1px solid transparent}
+.gcard:hover{text-decoration:none;border-color:var(--brand)}
+.gcard b{font-size:1.02rem}
+.gcard p{margin:0;color:var(--muted);font-size:.9rem;line-height:1.45}
+.gcard .n{font-size:.8rem;color:var(--brand);font-weight:600;margin-top:auto}
+.gcard .n.soon{color:var(--faint)}
+.steps3{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:4px}
+.steps3 div{background:#fff;border-radius:10px;padding:16px}
+.steps3 b{display:block;margin-bottom:4px}
+.steps3 span{color:var(--muted);font-size:.92rem}
+.ai-demo{display:grid;grid-template-columns:1fr auto 1fr;gap:14px;align-items:center;margin-top:18px}
+@media (max-width:700px){.ai-demo{grid-template-columns:1fr}.ai-demo .arrow{transform:rotate(90deg);justify-self:center}}
+.ai-demo .note,.ai-demo .msg{border-radius:12px;padding:14px 16px;font-size:.93rem;line-height:1.5}
+.ai-demo .note{background:var(--sunken);color:var(--ink)}
+.ai-demo .msg{background:#DCF8C6;color:#1B2B1B}
+.ai-demo small{display:block;font-size:.75rem;color:var(--muted);margin-bottom:6px;text-transform:uppercase;letter-spacing:.04em}
+.ai-demo .msg small{color:#4B6B4B}
+.ai-demo .arrow{font-size:1.4rem;color:var(--brand)}
+</style>
+{% endblock %}
+{% block body %}
+{% include "_site_header.html" %}
+<div class="in">
+  <div class="chips" aria-label="When">
+    <span class="lbl">When{{ tip("Show only creators who are sitting somewhere today, this weekend, or in the next 7 days. Tap again to clear.", "When filter") }}</span>
+    {% for k, label in WHEN_FILTERS.items() %}<a class="chip {{ 'on' if when == k }}" href="/?{{ 'c=' ~ (cat|urlencode) ~ '&' if cat }}{{ 'a=' ~ (area|urlencode) ~ '&' if area }}{{ '' if when == k else 'w=' ~ k }}">{{ label }}</a>{% endfor %}
+    {% if areas %}<span class="lbl" style="margin-left:10px">Area{{ tip("Neighbourhoods where creators sit. Pick one to see who's near you.", "Area filter") }}</span>
+    {% for x in areas %}<a class="chip {{ 'on' if area|lower == x|lower }}" href="/?{{ 'c=' ~ (cat|urlencode) ~ '&' if cat }}{{ 'w=' ~ when ~ '&' if when }}{{ '' if area|lower == x|lower else 'a=' ~ (x|urlencode) }}">{{ x }}</a>{% endfor %}{% endif %}
+  </div>
+</div>
+
+{% if featured and not filtering %}
+<div class="slider" id="slider" aria-roledescription="carousel" aria-label="Featured creators">
+<div class="banners {{ 'one' if featured|length == 1 }}" id="slides">
+  {% for x in featured %}
+  <a class="banner" href="/u/{{ x.slug }}"><img src="/media/{{ x.cover }}" alt="{{ x.name }}">{% if x.sample %}<span class="stag" style="top:12px;left:12px">Demo</span>{% endif %}<div class="cap"><b>{{ x.name }}</b><span>{{ x.craft }}{% if x.next %} · {{ x.next }}{% endif %}</span></div></a>
+  {% endfor %}
+</div>
+{% if featured|length > 1 %}
+<button type="button" class="sl-btn sl-prev" aria-label="Previous"><svg class="i"><use href="#i-back"/></svg></button>
+<button type="button" class="sl-btn sl-next" aria-label="Next"><svg class="i"><use href="#i-chev"/></svg></button>
+<div class="sl-dots" role="tablist">{% for x in featured %}<button type="button" role="tab" aria-label="Show {{ x.name }}"></button>{% endfor %}</div>
+{% endif %}
+</div>
+{% endif %}
+
+{% if not filtering %}
+<div class="list-band">
+  <div><b>Do you read tarot, draw mehendi or sketch portraits at a cafe?</b><span>Get your own booking page, QR code and WhatsApp assistant. It's free.</span></div>
+  <a class="btn" href="/creators">Walk-In for creators</a>
+</div>
+{% endif %}
+
+<div class="in">
+  {% if filtering %}
+  <div class="row-head"><h2>{{ cat or 'Creators' }}{% if area %} in {{ area }}{% endif %}{% if when %}, {{ WHEN_FILTERS[when]|lower }}{% endif %}{% if q %} for "{{ q }}"{% endif %}</h2><a href="/">Clear filters</a></div>
+  {% if cat and guide.get(cat) %}<p class="muted" style="margin:-4px 0 14px">{{ guide[cat] }}</p>{% endif %}
+  {% elif today %}
+  <div class="row-head"><h2>Available today{{ tip("Creators sitting at a cafe today, with times you can still book. A green dot means they're there right now.", "What does Available today mean?") }}</h2><a href="#all">See all ›</a></div>
+  <div class="strip">
+    {% for x in today %}{% include "_poster.html" %}{% endfor %}
+  </div>
+  {% endif %}
+
+  {% if not filtering %}<div class="row-head" id="all"><h2>Creators {{ 'in ' ~ city if city != 'all' else 'in every city' }}</h2></div>{% endif %}
+  {% if cards | selectattr('sample') | list %}<p class="small muted" style="margin:-4px 0 14px">Creators tagged <b>Demo</b> are dummy profiles that show how Walk-In works.{{ tip("Walk-In is new, so dummy creators show what a full marketplace looks like. You can try booking one: the request goes to a test inbox, not a real person. Real creators always come first.", "What are Demo creators?") }}</p>{% endif %}
+  {% if cards %}
+  <div class="grid">
+    {% for x in cards %}{% include "_poster.html" %}{% endfor %}
+  </div>
+  {% else %}
+  <div class="empty">
+    {% if filtering %}{% set who = CRAFT_PERSON.get(cat, 'creator') if cat else 'creator' %}
+    <p><b>No {{ who }}s here yet{% if area %} in {{ area }}{% endif %}{% if city != 'all' %} in {{ city }}{% endif %}{% if when %}, {{ WHEN_FILTERS[when]|lower }}{% endif %}.</b></p>
+    <p class="muted small">Walk-In is new and adding creators every week.{% if when or area %} Try <a href="/?{{ 'c=' ~ (cat|urlencode) if cat }}">any time or area</a>.{% endif %}{% if city != 'all' %} Try <a href="/?city=all{{ '&c=' ~ (cat|urlencode) if cat }}">every city</a>, or{% endif %} <a href="/">see all creators</a>.</p>
+    <p class="muted small" style="margin-top:14px">Are you a {{ who }}, or know a great one? <a href="/creators">List for free on Walk-In</a>.</p>
+    {% else %}<p><b>Be the first creator here.</b></p><p class="muted small">Create your page in a minute and start taking bookings.</p><a class="btn" href="/signup">List your service</a>{% endif %}
+  </div>
+  {% endif %}
+</div>
+
+{% if not filtering %}
+<div class="in">
+  <div class="row-head" id="services"><h2>What you can book</h2></div>
+  <div class="guide">
+    {% for craft, text in guide.items() %}
+    <a class="gcard" href="/?c={{ craft|urlencode }}"><b>{{ craft }}</b><p>{{ text }}</p>
+      {% set n = craft_counts[craft] %}<span class="n {{ 'soon' if not n }}">{{ (n ~ ' creator' ~ ('s' if n != 1 else '') ~ ' ›') if n else 'Coming soon' }}</span></a>
+    {% endfor %}
+  </div>
+
+  <div class="row-head" id="booking"><h2>Booking on Walk-In</h2><a href="/help#booking">Help ›</a></div>
+  <div class="steps3">
+    <div><b>1. Pick a time that's really free</b><span>See where each creator sits this week. Taken times disappear, so no double bookings.</span></div>
+    <div><b>2. No account, no app</b><span>Just your name and WhatsApp number. The creator confirms with you, and you get a link to check or cancel.</span></div>
+    <div><b>3. Pay at the table</b><span>You pay the creator directly after your session. No booking fees, nothing paid in advance.</span></div>
+  </div>
+</div>
+{% endif %}
+
+<section class="how" id="how">
+  <div class="in" style="display:flex;justify-content:space-between;align-items:center;gap:16px;flex-wrap:wrap">
+    <div><h2 style="margin:0">Are you a creator?</h2><p class="muted" style="margin:4px 0 0">Walk-In gives you a booking page, a QR code for your table, and an assistant that writes your WhatsApp messages. Free.</p></div>
+    <a class="btn" href="/creators">See how it works for creators</a>
+  </div>
+</section>
+{% include "_footer.html" %}
+{% endblock %}
+{% block script %}
+<script>
+(function(){
+  const box = document.getElementById("slides"), root = document.getElementById("slider");
+  if(!box || box.children.length < 2) return;
+  const slides = [...box.children], dots = [...root.querySelectorAll(".sl-dots button")];
+  const prev = root.querySelector(".sl-prev"), next = root.querySelector(".sl-next");
+  const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
+  let i = 0, timer = null;
+  const current = () => { let best = 0, d = Infinity;
+    slides.forEach((s, k) => { const x = Math.abs(s.offsetLeft - box.offsetLeft - 16 - box.scrollLeft); if(x < d){ d = x; best = k; } }); return best; };
+  function show(k){ i = (k + slides.length) % slides.length; box.scrollTo({left: slides[i].offsetLeft - box.offsetLeft - 16}); }
+  function paint(){ i = current(); dots.forEach((d, k) => { d.classList.toggle("on", k === i); d.setAttribute("aria-selected", k === i); }); }
+  prev.onclick = () => { show(i - 1); restart(); };
+  next.onclick = () => { show(i + 1); restart(); };
+  dots.forEach((d, k) => d.onclick = () => { show(k); restart(); });
+  box.addEventListener("scroll", () => requestAnimationFrame(paint), {passive:true});
+  function restart(){ clearInterval(timer); if(!reduce) timer = setInterval(() => show(i + 1), 5000); }
+  root.addEventListener("mouseenter", () => clearInterval(timer));
+  root.addEventListener("mouseleave", restart);
+  box.addEventListener("touchstart", () => clearInterval(timer), {passive:true});
+  root.addEventListener("keydown", e => { if(e.key === "ArrowLeft"){ prev.click(); } if(e.key === "ArrowRight"){ next.click(); } });
+  paint(); restart();
+})();
+</script>
+{% endblock %}

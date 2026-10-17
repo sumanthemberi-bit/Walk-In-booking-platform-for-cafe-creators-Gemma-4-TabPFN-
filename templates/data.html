@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>My data{{ tip("Your data belongs to you. Download it as files that open in Excel or Google Sheets, change your password, or delete everything.", "My data") }}</h1>
+<div class="card">
+  <h3>Where your data lives</h3>
+  <p class="muted" style="margin-top:0">Your profile, sittings, client notes and bookings are stored in this platform's own database. Other users can't see them. The AI (Gemma 4 and TabPFN) runs on the same machine, so client notes are never sent to an outside AI company.</p>
+</div>
+<div class="card">
+  <h3>Download everything</h3>
+  <p class="muted" style="margin-top:0">A zip with your profile (JSON) and your sittings, messages and bookings (CSV). It opens in Excel or Google Sheets.</p>
+  <a class="btn" href="/app/export.zip">Download my data</a>
+</div>
+<div class="card" id="password">
+  <h3>Change password</h3>
+  <form method="post" action="/app/password">
+    <label for="cur">Current password</label><input id="cur" name="current" type="password" required autocomplete="current-password">
+    <div class="row stack">
+      <div><label for="np">New password</label><input id="np" name="new" type="password" required minlength="8" autocomplete="new-password"></div>
+      <div><label for="np2">New password again</label><input id="np2" name="again" type="password" required minlength="8" autocomplete="new-password"></div>
+    </div>
+    <button class="btn ghost" style="margin-top:14px">Change password</button>
+  </form>
+</div>
+<div class="card">
+  <h3>Delete my account</h3>
+  <p class="muted" style="margin-top:0">Permanently deletes your page, sittings, messages and bookings. This cannot be undone. Type <b>{{ me.username }}</b> to confirm.</p>
+  <form method="post" action="/app/delete-account" onsubmit="return confirm('Delete your account and all data forever?')">
+    <input name="confirm" autocapitalize="none" placeholder="{{ me.username }}">
+    <button class="btn danger full">Delete my account</button>
+  </form>
+</div>
+{% endblock %}

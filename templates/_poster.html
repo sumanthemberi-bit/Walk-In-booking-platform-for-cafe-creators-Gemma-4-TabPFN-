@@ -1,0 +1,12 @@
+<a class="poster" href="/u/{{ x.slug }}">
+  <div class="img">
+    {% if x.photo %}<img src="/media/{{ x.photo }}" alt="{{ x.name }}" loading="lazy">
+    {% elif x.cover %}<img src="/media/{{ x.cover }}" alt="{{ x.name }}" loading="lazy">
+    {% else %}<div class="ph" style="background:{{ x.tint }}"><b>{{ x.initial }}</b><span>{{ x.craft }}</span></div>{% endif %}
+    {% if x.sample %}<span class="stag">Demo</span>{% endif %}
+    {% if x.next %}<div class="tag">{% if x.live %}<i></i>{% endif %}{{ x.next }}</div>{% endif %}
+  </div>
+  <div class="name">{{ x.name }}{% if x.verified %} <span class="vtick" title="Verified by Walk-In">✓</span>{% endif %}</div>
+  <div class="meta">{{ x.craft }}{% if x.from %} · from {{ x.from }}{% endif %}</div>
+  {% if x.areas %}<div class="meta">{{ x.areas|join(', ') }}</div>{% endif %}
+</a>

@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>Platform</h1>
+<p class="muted">Only you (the admin) see this page. {{ stats.users }} users and {{ stats.bookings }} bookings so far.</p>
+
+<div class="card">
+  <h3>Platform email</h3>
+  <p class="small muted" style="margin-top:0">Every booking email is sent from this one account, like <i>bookings@</i> on any booking site: alerts to owners, "request received" and "booking confirmed" to customers. Owners and customers only type their own address.</p>
+  {% if connected %}
+  <p>Connected: <b>{{ sender }}</b> <span class="pill confirmed">on</span></p>
+  <form method="post" action="/app/admin/test">
+    <label>Send a test email to</label>
+    <div style="display:flex;gap:8px"><input name="to" type="email" required value="{{ profile.alert_email or sender }}"><button class="btn sm">Send</button></div>
+  </form>
+  <form method="post" action="/app/admin/disconnect" style="margin-top:12px" onsubmit="return confirm('Turn off booking emails for everyone?')"><button class="btn danger sm">Disconnect</button></form>
+  {% else %}
+  <ol class="small" style="padding-left:18px">
+    <li>Create a Gmail for the platform, e.g. <b>walkin.bookings@gmail.com</b>. Your personal one works too.</li>
+    <li>On that account, turn on <a href="https://myaccount.google.com/security" target="_blank">2-Step Verification</a>.</li>
+    <li>Open <a href="https://myaccount.google.com/apppasswords" target="_blank">App passwords</a>, name it <i>Walk-In</i>, and copy the 16 letters.</li>
+  </ol>
+  <form method="post" action="/app/admin/connect">
+    <label>Platform Gmail</label><input name="address" type="email" required autocapitalize="none" placeholder="walkin.bookings@gmail.com">
+    <label>App password</label><input name="app_password" required autocomplete="off" autocapitalize="none" placeholder="abcd efgh ijkl mnop">
+    <button class="btn full" onclick="this.textContent='Checking with Gmail…'">Connect platform email</button>
+  </form>
+  <p class="small muted">The password is checked with Gmail, then stored encrypted. Gmail allows about 500 emails a day, plenty for a community platform.</p>
+  {% endif %}
+</div>
+<div class="card" id="demo">
+  <h3>Demo creators{{ tip("Dummy creators, tagged <b>Demo</b> everywhere, are added automatically every time Walk-In starts, so the site never looks empty. Log in as one to show the Creator studio side of a booking.", "Demo creators") }}</h3>
+  <p class="small muted" style="margin-top:0">{{ n_samples }} dummy creators, tagged <b>Demo</b> on every page. All log in with password <b>{{ demo_password }}</b>.</p>
+  <div class="scroll"><table>
+    <tr><th>Creator</th><th>City</th><th>Username</th><th>Page</th></tr>
+    {% for d in demo_logins %}<tr><td>{{ d.name }}</td><td>{{ d.city }}</td><td><code>{{ d.username }}</code></td><td><a href="/u/{{ d.slug }}" target="_blank">/u/{{ d.slug }}</a></td></tr>{% endfor %}
+  </table></div>
+  <form method="post" action="/app/admin/samples-add" style="margin-top:10px"><button class="btn ghost sm">Restore any missing demo creators</button></form>
+</div>
+<div class="card">
+  <h3>Contact email</h3>
+  <p class="small muted" style="margin-top:0">Shown on Help, Privacy, Terms and error pages, so customers and creators can reach you.</p>
+  <form method="post" action="/app/admin/contact"><div style="display:flex;gap:8px"><input name="contact" type="email" value="{{ contact }}" placeholder="{{ sender or 'you@gmail.com' }}"><button class="btn sm">Save</button></div></form>
+</div>
+<div class="card" id="users">
+  <h3>Users</h3>
+  <p class="small muted" style="margin-top:0">If someone forgets their password, reset it here and send them the new one privately. They can change it in My data.</p>
+  <div class="scroll"><table>
+    <tr><th>Name</th><th>Username</th><th>Page</th><th class="num">Bookings</th><th></th><th></th></tr>
+    {% for u in users %}
+    <tr><td>{{ u.name }}{% if u.sample %} <span class="pill done">Demo</span>{% endif %}</td><td>{{ u.username }}</td><td><a href="/u/{{ u.slug }}" target="_blank">/u/{{ u.slug }}</a></td><td class="num">{{ u.bookings }}</td>
+      <td class="num"><form method="post" action="/app/admin/verify/{{ u.id }}"><button class="btn {{ 'ok' if u.verified else 'ghost' }} sm" title="Mark verified only after meeting them in person">{{ '✓ Verified' if u.verified else 'Verify' }}</button></form></td>
+      <td class="num"><form method="post" action="/app/admin/reset/{{ u.id }}" onsubmit="return confirm('Reset the password for {{ u.username }}? Their old password will stop working.')"><button class="btn ghost sm">Reset password</button></form></td></tr>
+    {% endfor %}
+  </table></div>
+</div>
+<div class="card">
+  <h3>Backups</h3>
+  <p class="small muted" style="margin-top:0">A copy of all data is saved automatically once a day while Walk-In is running.</p>
+  {% if backups %}<ul style="padding-left:18px;margin:6px 0">{% for b in backups %}<li class="small">{{ b }}</li>{% endfor %}</ul>
+  {% else %}<p class="small">No backups yet. The first one is made a minute after starting.</p>{% endif %}
+  <form method="post" action="/app/admin/backup"><button class="btn ghost sm">Back up now</button></form>
+</div>
+{% endblock %}

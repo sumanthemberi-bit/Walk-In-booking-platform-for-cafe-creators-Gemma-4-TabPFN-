@@ -1,0 +1,9 @@
+fastapi
+uvicorn
+jinja2
+python-multipart
+itsdangerous
+requests
+pandas
+qrcode[pil]
+tabpfn

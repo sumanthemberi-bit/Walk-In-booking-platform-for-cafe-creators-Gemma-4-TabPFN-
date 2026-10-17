@@ -1,0 +1,43 @@
+{% extends "base.html" %}
+{% block title %}Create your page · Walk-In{% endblock %}
+{% block head %}{% include "_auth_style.html" %}{% endblock %}
+{% block body %}
+<div class="auth">
+<a class="brand" href="/"><span class="mark">W</span>Walk-In</a>
+<nav class="seg" aria-label="Account type">
+  <a href="/signup/customer">I want to book<small>Customer account</small></a>
+  <a class="on cr" href="/signup" aria-current="page">I offer a service<small>Creator page</small></a>
+</nav>
+<div class="whoband cr"><span class="ic"><svg class="i"><use href="#i-cal"/></svg></span><div><b>Creator studio</b><span>For tarot readers, mehendi artists and other creators who take bookings.</span></div></div>
+<h1 style="margin-top:18px">Create your creator page</h1>
+<p class="muted">Free. Takes a minute. You can change everything later.</p>
+<details class="small" style="margin:10px 0 4px"><summary>What you'll get</summary>
+  <ul style="padding-left:18px;margin:8px 0;line-height:1.6">
+    <li>A booking page like <b>walk-in…/u/your-name</b>, with your photo, services and prices</li>
+    <li>A QR code for your table, so people at the cafe can book on the spot</li>
+    <li>Booking requests in your Bookings inbox, with email and phone alerts and one-tap confirm</li>
+    <li>Thank-you notes and reminders drafted for you in English, Hinglish or Hindi</li>
+  </ul>
+  After signing up, a short checklist walks you through photos, prices, and when and where you sit.
+</details>
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+<form method="post" action="/signup">
+  <label for="n">Your name, as customers will see it</label>
+  <input id="n" name="name" required value="{{ form.name if form }}" placeholder="Aarav Tarot" autocomplete="name">
+  <div class="row">
+    <div><label for="c">What you do</label>
+      <select id="c" name="craft">{% for c in CRAFTS %}<option {{ 'selected' if form and form.craft == c }}>{{ c }}</option>{% endfor %}</select></div>
+    <div><label for="ci">City</label><input id="ci" name="city" value="{{ form.city if form else 'Mumbai' }}"></div>
+  </div>
+  <label for="u">Username</label>
+  <input id="u" name="username" required autocapitalize="none" autocomplete="username" value="{{ form.username if form }}" placeholder="aarav">
+  <label for="p">Password</label>
+  <input id="p" name="password" type="password" required minlength="8" autocomplete="new-password" placeholder="At least 8 characters">
+  <label for="e">Email <span class="faint">(for booking alerts and password recovery)</span></label>
+  <input id="e" name="email" type="email" autocapitalize="none" autocomplete="email" value="{{ form.email if form }}" placeholder="you@gmail.com">
+  <label style="display:flex;gap:10px;align-items:flex-start;font-weight:400;margin-top:14px"><input type="checkbox" name="agree" required style="width:auto;margin-top:4px"> <span class="small">I agree to the <a href="/terms" target="_blank">Terms</a> and <a href="/privacy" target="_blank">Privacy policy</a>, and I'll keep my page accurate.</span></label>
+  <button class="btn full">Create my page</button>
+</form>
+<p class="small muted" style="text-align:center;margin-top:18px">Already have a page? <a href="/login?as=creator">Log in</a></p>
+</div>
+{% endblock %}

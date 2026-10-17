@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>Best slots{{ tip("Uses TabPFN, an open-source AI model for small tables, trained only on your own log. It predicts earnings and customers for each day, time and cafe next week, and ranks them. More logged sittings means better predictions.", "How Best slots works") }}</h1>
+<p class="muted">Which day, time and venue should you pick this week? Learned only from your own log.</p>
+{% if n < min_rows %}
+<div class="card"><p style="margin:0">Log at least {{ min_rows }} sittings to unlock this. You have {{ n }}. <a href="/app/log">Open sittings log</a></p></div>
+{% else %}
+  {% if not best %}
+  <div class="card">
+    <p style="margin-top:0">Ready to learn from your {{ n }} sittings.</p>
+    <a class="btn" href="/app/slots?run=1" onclick="this.textContent='Predicting… (first run can take a minute)';this.style.pointerEvents='none'">Predict my week</a>
+  </div>
+  {% else %}
+  <div class="card">
+    <p class="small muted" style="margin-top:0">Model: {{ method }} · learned from {{ n }} of your sittings</p>
+    {% for r in best %}
+    <div style="padding:10px 0;border-bottom:1px solid var(--line)">
+      <div style="display:flex;justify-content:space-between;gap:10px"><b>{{ r.day[:3] }} {{ r.date.strftime('%d %b') }}</b><b>₹{{ '{:,}'.format(r.pred_earnings) }}</b></div>
+      <div class="small muted">{{ fmt_time(r.start_hour) }}–{{ fmt_time(r.end_hour) }} at {{ r.cafe }} · ~{{ r.pred_customers }} customers</div>
+      <div class="bar" style="width:{{ (100 * r.pred_earnings / max_e)|round|int }}%;margin-top:6px"></div>
+    </div>
+    {% endfor %}
+  </div>
+  <details class="card scroll">
+    <summary>All options compared</summary>
+    <table style="margin-top:10px">
+      <tr><th>Day</th><th>Time</th><th>Venue</th><th class="num">Cust.</th><th class="num">₹</th></tr>
+      {% for r in top %}<tr><td>{{ r.day[:3] }}</td><td class="small">{{ fmt_time(r.start_hour) }}</td><td>{{ r.cafe }}</td><td class="num">{{ r.pred_customers }}</td><td class="num">{{ '{:,}'.format(r.pred_earnings) }}</td></tr>{% endfor %}
+    </table>
+  </details>
+  {% endif %}
+  <div class="card scroll">
+    <h3>What actually happened so far</h3>
+    <table>
+      <tr><th>Venue</th><th>When</th><th class="num">Sittings</th><th class="num">Avg cust.</th><th class="num">Avg ₹</th></tr>
+      {% for r in summary %}<tr><td>{{ r.cafe }}</td><td>{{ r.when }}</td><td class="num">{{ r.sittings }}</td><td class="num">{{ r.avg_customers }}</td><td class="num">{{ '{:,}'.format(r.avg_earnings|int) }}</td></tr>{% endfor %}
+    </table>
+  </div>
+{% endif %}
+{% endblock %}

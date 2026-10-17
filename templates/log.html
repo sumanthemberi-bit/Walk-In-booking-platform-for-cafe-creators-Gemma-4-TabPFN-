@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>Log a sitting{{ tip("One entry each time you sit somewhere: date, cafe, hours, how many customers and what you earned. After 8 entries, <b>Best slots</b> predicts your best day, time and cafe.", "Why log sittings") }}</h1>
+<p class="muted">One entry each time you sit somewhere. Best slots learns from this.</p>
+<form class="card" method="post" action="/app/log">
+  <div class="row">
+    <div><label>Date</label><input type="date" name="date" value="{{ today }}" required></div>
+    <div><label>Venue</label>
+      <select name="venue" id="venue">{% for v in venues %}<option>{{ v }}</option>{% endfor %}<option value="">+ New venue</option></select></div>
+  </div>
+  <div id="newv" {% if venues %}hidden{% endif %}><label>New venue name</label><input name="new_venue" placeholder="e.g. the cafe name and area"></div>
+  <div class="row">
+    <div><label>Start</label><select name="start">{% for t in TIMES %}<option value="{{ t }}" {{ 'selected' if t == 16 }}>{{ fmt_time(t) }}</option>{% endfor %}</select></div>
+    <div><label>End</label><select name="end">{% for t in TIMES %}<option value="{{ t }}" {{ 'selected' if t == 20 }}>{{ fmt_time(t) }}</option>{% endfor %}</select></div>
+    <div><label>Customers</label><input type="number" name="customers" min="0" value="0" inputmode="numeric"></div>
+    <div><label>Earnings (₹)</label><input type="number" name="earnings" min="0" step="1" value="0" inputmode="numeric"></div>
+  </div>
+  <label>Weather</label>
+  <select name="weather">{% for w in WEATHER %}<option>{{ w }}</option>{% endfor %}</select>
+  <button class="btn full">Save sitting</button>
+</form>
+
+{% if rows %}
+{% set tc = rows|sum(attribute='customers') %}{% set te = rows|sum(attribute='earnings') %}
+<p class="muted" style="margin:18px 0 0">{{ rows|length }} sittings logged, {{ tc }} customers, ₹{{ '{:,}'.format(te) }} earned (₹{{ '{:,}'.format((te / tc)|int if tc else 0) }} per customer).</p>
+<div class="scroll" style="margin-top:10px">
+  <table>
+    <tr><th>Date</th><th>Time</th><th>Venue</th><th class="num">Cust.</th><th class="num">₹</th><th></th></tr>
+    {% for r in rows %}
+    <tr><td>{{ r.date[5:] }}<br><span class="small muted">{{ r.day[:3] }}</span></td>
+      <td class="small">{{ fmt_time(r.start_hour) }}–{{ fmt_time(r.end_hour) }}</td>
+      <td>{{ r.cafe }}</td><td class="num">{{ r.customers }}</td><td class="num">{{ '{:,}'.format(r.earnings) }}</td>
+      <td><form method="post" action="/app/log/{{ r.id }}/delete" onsubmit="return confirm('Delete this sitting?')"><button class="btn ghost icon" title="Delete" aria-label="Delete"><svg class="i"><use href="#i-x"/></svg></button></form></td></tr>
+    {% endfor %}
+  </table>
+</div>
+{% endif %}
+
+<details class="card">
+  <summary>Import from a spreadsheet (CSV)</summary>
+  <p class="small muted">Columns: <code>date, start_time, end_time, cafe, customers, earnings</code> (weather optional). Times like 16:00 or 4:30 PM.</p>
+  <form method="post" action="/app/log/import" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".csv" required>
+    <label style="display:flex;gap:10px;align-items:center;font-weight:500"><input type="checkbox" name="replace" style="width:auto"> Replace my existing sittings</label>
+    <button class="btn ghost full">Import</button>
+  </form>
+</details>
+{% if rows %}
+<form method="post" action="/app/log/clear" onsubmit="return confirm('Delete ALL your sittings? This cannot be undone.')"><button class="btn danger sm">Delete all sittings</button></form>
+{% endif %}
+{% endblock %}
+{% block script %}
+<script>
+const v = document.getElementById("venue"), nv = document.getElementById("newv");
+v.onchange = () => nv.hidden = v.value !== "";
+</script>
+{% endblock %}

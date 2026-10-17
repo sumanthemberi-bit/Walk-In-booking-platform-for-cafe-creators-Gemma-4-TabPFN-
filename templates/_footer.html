@@ -1,0 +1,17 @@
+<footer class="sitefoot"><div class="in">
+  <div class="cols">
+    <div><b>For customers</b><a href="/">Browse creators</a><a href="/help#booking">How booking works</a><a href="/help#cancel">Cancel or change a booking</a></div>
+    <div><b>For creators</b><a href="/creators">Walk-In for creators</a><a href="/signup">List your service</a><a href="/login">Creator sign in</a><a href="/help#creators">Help for creators</a></div>
+    <div><b>Walk-In</b><a href="/help">Help &amp; contact</a><a href="/privacy">Privacy</a><a href="/terms">Terms</a></div>
+  </div>
+  <p class="fine">Walk-In, Mumbai. Creators are independent and set their own prices. You pay them directly at your session; Walk-In never takes payment.{% if contact_email() %} Contact: <a href="mailto:{{ contact_email() }}">{{ contact_email() }}</a>{% endif %}</p>
+</div></footer>
+<style>
+.sitefoot{background:#333338;color:#B5B5BA;font-size:.88rem;padding:26px 0 calc(26px + env(safe-area-inset-bottom));margin-top:40px}
+.sitefoot .in{max-width:1180px;margin:0 auto;padding:0 16px}
+.sitefoot .cols{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:18px}
+.sitefoot b{display:block;color:#fff;margin-bottom:6px}
+.sitefoot a{display:block;color:#D6D6DA;padding:3px 0}
+.sitefoot .fine{margin:20px 0 0;font-size:.8rem;line-height:1.5}
+.sitefoot .fine a{display:inline;padding:0}
+</style>

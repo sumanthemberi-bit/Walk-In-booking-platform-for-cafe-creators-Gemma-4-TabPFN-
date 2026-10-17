@@ -1,0 +1,38 @@
+{% set cur_city = city if city else 'Mumbai' %}
+<header class="site">
+  <div class="bar1">
+    <a class="brand" href="/"><span class="mark">W</span>Walk-In</a>
+    <form class="search" action="/" method="get" role="search"><svg class="i"><use href="#i-search"/></svg><input name="q" value="{{ q or '' }}" placeholder="Search for tarot, mehendi, caricature, cafes…" aria-label="Search"></form>
+    <button type="button" class="city" onclick="document.getElementById('citypick').showModal()" aria-haspopup="dialog" aria-label="Change city, now {{ 'all cities' if cur_city == 'all' else cur_city }}"><svg class="i" style="width:16px;height:16px"><use href="#i-pin"/></svg>{{ 'All cities' if cur_city == 'all' else cur_city }}<svg class="i" style="width:14px;height:14px;transform:rotate(90deg)"><use href="#i-chev"/></svg></button>
+    {% if viewer and viewer.role == 'customer' %}<a class="signin" href="/me">My bookings</a>
+    {% elif viewer and viewer.role == 'creator' %}<a class="signin" href="/app">Creator studio</a>
+    {% else %}<a class="login-link" href="/login">Log in</a><a class="signin" href="/join">Sign up</a>{% endif %}
+  </div>
+  <form class="msearch" action="/" method="get" role="search"><svg class="i"><use href="#i-search"/></svg><input name="q" value="{{ q or '' }}" placeholder="Search tarot, mehendi, cafes…" aria-label="Search"></form>
+  <nav class="bar2"><div class="in">
+    {% for c in CATEGORIES %}<a href="/?c={{ c|urlencode }}" class="{{ 'on' if cat == c }}">{{ c }}</a>{% endfor %}
+    <span class="right"><a href="/creators">For creators</a><a href="/help">Help</a></span>
+  </div></nav>
+</header>
+<dialog class="citydlg" id="citypick" onclick="if(event.target===this)this.close()" aria-label="Choose your city">
+  <div class="cd-head"><b>Choose your city</b><button type="button" class="btn ghost icon" onclick="this.closest('dialog').close()" aria-label="Close"><svg class="i"><use href="#i-x"/></svg></button></div>
+  <div class="cd-grid">
+    {% for name in CITIES %}<a href="/?city={{ name|urlencode }}" class="{{ 'on' if cur_city == name }}">{{ name }}</a>{% endfor %}
+  </div>
+  <a class="cd-all {{ 'on' if cur_city == 'all' }}" href="/?city=all">Show all cities</a>
+</dialog>
+<style>
+.site .city{background:none;border:0;padding:6px 4px;display:inline-flex;align-items:center;gap:4px;color:var(--ink);font:inherit;font-size:.95rem;cursor:pointer;min-height:0;white-space:nowrap}
+.site .city:hover{color:var(--brand)}
+.site .login-link{color:var(--ink);font-size:.92rem;white-space:nowrap;margin-right:4px}
+.site .brand{white-space:nowrap;flex:none}
+@media (max-width:440px){.site .login-link{display:none}.site .city{font-size:.88rem}}
+.citydlg{border:0;border-radius:14px;padding:18px;width:min(460px,calc(100vw - 32px));box-shadow:0 16px 48px rgba(0,0,0,.25)}
+.citydlg::backdrop{background:rgba(0,0,0,.45)}
+.cd-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.cd-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(120px,1fr));gap:8px}
+.cd-grid a,.cd-all{display:block;padding:10px 12px;border:1px solid var(--line);border-radius:10px;color:var(--ink);text-align:center;font-size:.92rem}
+.cd-grid a:hover,.cd-all:hover{border-color:var(--brand);text-decoration:none}
+.cd-grid a.on,.cd-all.on{background:var(--brand);border-color:var(--brand);color:#fff}
+.cd-all{margin-top:10px}
+</style>

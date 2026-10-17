@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+{% block title %}Your booking with {{ page.name }} · Walk-In{% endblock %}
+{% block head %}<style>
+.wrap{max-width:520px}.bs{padding-top:20px}
+.state{display:flex;gap:12px;align-items:center;margin:22px 0 6px}
+.state .dot{width:14px;height:14px;border-radius:50%;flex:none;background:var(--brand)}
+.state.confirmed .dot,.state.done .dot{background:var(--ok)}
+.state.declined .dot,.state.cancelled .dot{background:#BBB}
+.state h1{margin:0;font-size:1.45rem}
+.receipt{border:1px dashed var(--line);border-radius:var(--r);padding:4px 14px;margin:16px 0}
+.receipt > div{display:flex;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px dashed var(--line);font-size:.95rem}
+.receipt > div:last-child{border-bottom:0}
+.receipt span{color:var(--muted)}
+.receipt b{text-align:right}
+</style>{% endblock %}
+{% block body %}
+{% set first = page.name.split()[0] if page.name else 'The creator' %}
+<div class="bs">
+<a class="brand" href="/"><span class="mark">W</span>Walk-In</a>
+<div class="state {{ b.status }}"><span class="dot"></span>
+  <h1>{% if b.status == 'new' %}Waiting for {{ first }} to confirm{% elif b.status == 'confirmed' %}Your booking is confirmed{% elif b.status == 'done' %}Session completed{% elif b.status == 'declined' %}{{ first }} can't make this time{% else %}Booking cancelled{% endif %}</h1>
+</div>
+<p class="muted" style="margin-top:4px">
+  {% if b.status == 'new' %}{{ first }} usually confirms on WhatsApp{{ ' or by email' if b.email }}. You don't need to do anything else.
+  {% elif b.status == 'confirmed' %}Please arrive a few minutes early. You pay {{ first }} directly at the session.
+  {% elif b.status == 'done' %}Thanks for visiting {{ first }}.
+  {% elif b.status == 'declined' %}Please pick another time on {{ first }}'s page.
+  {% else %}This time is free again for someone else. Thanks for letting {{ first }} know.{% endif %}
+</p>
+<div class="receipt">
+  <div><span>With</span><b>{{ page.name }}{% if page.verified %} ✓{% endif %}{% if page.sample %} (demo creator){% endif %}</b></div>
+  <div><span>Service</span><b>{{ b.service or 'Decide on the day' }}</b></div>
+  <div><span>When</span><b>{{ b.preferred or 'To be agreed' }}</b></div>
+  <div><span>Name</span><b>{{ b.name }}</b></div>
+  <div><span>Booking number</span><b>#{{ b.id }}</b></div>
+</div>
+<div class="actions" style="flex-direction:column;align-items:stretch">
+  {% if wa and b.status in ('new', 'confirmed') %}<a class="btn ok full" href="{{ wa }}"><svg class="i"><use href="#i-wa"/></svg>Message {{ first }} on WhatsApp</a>{% endif %}
+  {% if b.status in ('declined', 'cancelled', 'done') %}<a class="btn full" href="/u/{{ page_slug }}#book">Book again</a>{% endif %}
+  <a class="btn ghost full" href="/u/{{ page_slug }}">{{ first }}'s page</a>
+</div>
+{% if can_cancel %}
+<form method="post" action="/b/{{ b.token }}/cancel" style="margin-top:22px" onsubmit="return confirm('Cancel this booking? {{ first }} will be told, and the time will open up for others.')">
+  <button class="btn danger full">Cancel my booking</button>
+</form>
+<p class="small muted" style="text-align:center">Free to cancel. There's nothing to refund: you only pay at the session.</p>
+{% endif %}
+<p class="small faint" style="margin-top:24px;text-align:center">Keep this link to check or cancel your booking. Anyone with the link can see it, so don't share it. · <a href="/help#cancel">Help</a> · <a href="/privacy">Privacy</a></p>
+</div>
+{% endblock %}

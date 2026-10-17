@@ -1,0 +1,332 @@
+{% extends "base.html" %}
+{% block title %}{{ page.name }}: {{ page.craft }}{% if page.city %} in {{ page.city }}{% endif %}{% endblock %}
+{% block bodyclass %}public{% endblock %}
+{% block head %}
+<meta name="description" content="{{ page.craft }}{% if page.city %} in {{ page.city }}{% endif %}. {{ page.bio[:140] }}">
+<style>
+.wrap{max-width:none;padding:0 0 110px}
+.in{max-width:860px;margin:0 auto;padding:0 16px}
+.owner{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;background:#FFF4D6;padding:10px 16px;font-size:.9rem}
+.hero{position:relative;color:#fff;background:#1A1A1A var(--cover,none) center/cover no-repeat}
+.hero::before{content:"";position:absolute;inset:0;background:linear-gradient(90deg,rgba(26,26,26,.95) 0%,rgba(26,26,26,.78) 45%,rgba(26,26,26,.35) 100%)}
+.hero-in{position:relative;max-width:860px;margin:0 auto;padding:28px 16px;display:flex;gap:24px;align-items:center}
+.poster{flex:none;width:150px;aspect-ratio:3/4;border-radius:10px;overflow:hidden;box-shadow:0 6px 24px rgba(0,0,0,.4);background:var(--tint,#5B3E8C);display:grid;place-items:center}
+.poster img{width:100%;height:100%;object-fit:cover;display:block}
+.poster b{font-size:3.6rem;font-weight:900;color:#fff}
+@media (min-width:700px){.poster{width:200px}.hero-in{padding:40px 16px}}
+.hero h1{font-size:clamp(1.6rem,4.5vw,2.4rem);margin:0;color:#fff;font-weight:700}
+.hero .sub{color:#DDD;margin-top:6px;font-size:1rem}
+.hero .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.hero .meta span{background:rgba(255,255,255,.14);border-radius:4px;padding:3px 9px;font-size:.84rem}
+@media (max-width:520px){.hero-in{flex-direction:column;align-items:flex-start;gap:16px}.poster{width:120px}}
+.status{display:inline-flex;align-items:center;gap:8px;margin-top:14px;font-size:.92rem;font-weight:500}
+.status i{width:8px;height:8px;border-radius:50%;background:#BBB}
+.status.live i{background:#3DD068}
+.quick{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap}
+.quick .btn{min-width:160px}
+.quick .btn.ghost{background:transparent;color:#fff;border-color:rgba(255,255,255,.5)}
+.quick .btn.ghost:hover{background:rgba(255,255,255,.08)}
+.block{background:var(--surface);margin:12px -16px;padding:20px 16px}
+.bio{color:var(--muted);margin:0;white-space:pre-line}
+@media (min-width:700px){.block{margin:14px 0;border-radius:10px}}
+.block > h2{font-size:1.1rem;margin:0 0 6px;font-weight:700}
+.svc{display:flex;align-items:center;gap:14px;padding:13px 0;border-bottom:1px solid var(--line)}
+.svc:last-child{border-bottom:0}
+.svc .t{flex:1;min-width:0}
+.svc .t b{display:block;font-weight:500}
+.svc .t span{color:var(--muted);font-size:.86rem}
+.svc .p{font-weight:700;white-space:nowrap;font-variant-numeric:tabular-nums}
+.svc .btn.ghost{color:var(--brand);border-color:var(--brand)}
+.when-row{display:grid;grid-template-columns:110px 1fr auto;gap:12px;align-items:baseline;padding:11px 0;border-bottom:1px solid var(--line)}
+.when-row:last-child{border-bottom:0}
+.dbox{font-weight:700}
+.when-row .v{font-weight:500}
+.when-row .v span{display:block;color:var(--muted);font-size:.84rem;font-weight:400}
+.step{margin-top:20px}
+.step:first-of-type{margin-top:8px}
+.step h3{font-size:.98rem;margin:0 0 10px;font-weight:700}
+.step h3 em{font-style:normal;color:var(--muted);margin-right:6px}
+.opt{display:block;margin:0;cursor:pointer;font-weight:400}
+.opt input{position:absolute;opacity:0;width:1px;height:1px}
+.opt .svc{padding:12px 0}
+.opt input:checked + .svc .t b{color:var(--brand);font-weight:700}
+.opt input:focus-visible + .svc{outline:2px solid var(--brand);outline-offset:2px}
+.radio{width:20px;height:20px;border-radius:50%;border:2px solid #C5C6CF;flex:none;display:grid;place-items:center}
+.opt input:checked + .svc .radio{border-color:var(--brand)}
+.opt input:checked + .svc .radio::after{content:"";width:10px;height:10px;border-radius:50%;background:var(--brand)}
+.dates{display:flex;gap:8px;overflow-x:auto;padding:2px 2px 10px;scroll-snap-type:x mandatory;scrollbar-width:none}
+.dates::-webkit-scrollbar{display:none}
+.dchip{flex:none;scroll-snap-align:start;min-width:60px;padding:8px 6px;border:0;border-radius:8px;background:transparent;text-align:center;cursor:pointer;font:inherit;color:var(--ink);line-height:1.2}
+.dchip small{display:block;font-size:.72rem;color:var(--muted);font-weight:500;text-transform:uppercase}
+.dchip b{display:block;font-size:1.25rem;font-weight:700}
+.dchip span{display:block;font-size:.7rem;color:var(--muted);text-transform:uppercase}
+.dchip:hover{background:var(--sunken)}
+.dchip[aria-pressed=true]{background:var(--brand);color:#fff}
+.dchip[aria-pressed=true] small,.dchip[aria-pressed=true] span{color:#fff;opacity:.9}
+.venue{margin:16px 0 10px;display:flex;align-items:center;gap:6px;font-weight:700;font-size:.95rem}
+.venue svg.i{width:17px;height:17px;color:var(--muted)}
+.times{display:grid;grid-template-columns:repeat(auto-fill,minmax(88px,1fr));gap:10px}
+.tchip{margin:0;font-weight:500}
+.tchip input{position:absolute;opacity:0;width:1px;height:1px}
+.tchip span{display:block;text-align:center;padding:9px 0;border:1px solid var(--slot);color:var(--slot);border-radius:6px;background:var(--surface);cursor:pointer;font-size:.9rem}
+.tchip span:hover{background:var(--slot-soft)}
+.tchip input:checked+span{background:var(--slot);color:#fff}
+.tchip input:focus-visible+span{outline:2px solid var(--slot);outline-offset:2px}
+.legend{display:flex;gap:16px;font-size:.78rem;color:var(--muted);margin-top:12px}
+.legend i{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid var(--slot);vertical-align:-1px;margin-right:5px}
+.legend i.sel{background:var(--slot)}
+.dock{position:fixed;left:0;right:0;bottom:0;z-index:20;background:var(--surface);box-shadow:0 -2px 12px rgba(0,0,0,.08);padding:10px 16px calc(10px + env(safe-area-inset-bottom))}
+.dock .in{max-width:680px;margin:0 auto;display:flex;align-items:center;gap:12px}
+.dock .sum{flex:1;min-width:0;font-size:.86rem;line-height:1.35}
+.dock .sum b{display:block;font-size:.95rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.dock .sum span{color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:block}
+.dock .btn{min-width:160px;min-height:46px;font-weight:500}
+.done{text-align:center;padding:36px 16px 20px}
+.done .tick{width:60px;height:60px;border-radius:50%;background:var(--ok-soft);color:var(--ok);display:grid;place-items:center;margin:0 auto 12px}
+.done .tick svg.i{width:30px;height:30px;stroke-width:2.4}
+.receipt{text-align:left;margin:18px 0 6px;border:1px dashed var(--line);border-radius:var(--r);padding:4px 14px}
+.receipt > div{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px dashed var(--line);font-size:.92rem}
+.receipt > div:last-child{border-bottom:0}
+.receipt > div span{color:var(--muted)}
+.foot{text-align:center;color:var(--faint);font-size:.82rem;margin-top:24px}
+</style>
+{% endblock %}
+{% block body %}
+{% include "_site_header.html" %}
+{% if page.sample %}
+<div class="owner" style="background:#EEF1FF"><span><b>Demo creator.</b> This is a dummy profile that shows how Walk-In works. You can try booking: the request goes to a test inbox, not a real person.</span><a class="btn ghost sm" href="/">See all creators</a></div>
+{% endif %}
+{% if is_owner %}
+<div class="owner"><span>This is your public page. Customers see it like this.</span>
+  <span class="actions" style="margin:0"><a class="btn sm" href="/app/bookings">Bookings</a><a class="btn ghost sm" href="/app/profile">Edit page</a></span></div>
+{% endif %}
+
+{% if booked %}
+<div class="in">
+<section class="block done" id="book">
+  {% set first = page.name.split()[0] %}
+  <div class="tick"><svg class="i"><use href="#i-check"/></svg></div>
+  <h1 style="font-size:1.4rem">Request sent to {{ first }}</h1>
+  <p class="muted">You don't need to do anything else.</p>
+  {% if last %}
+  <div class="receipt">
+    <div><span>Service</span><b>{{ last.service or 'Not decided yet' }}</b></div>
+    <div><span>When</span><b>{{ last.preferred or 'Flexible' }}</b></div>
+    <div><span>Name</span><b>{{ last.name }}</b></div>
+  </div>
+  {% endif %}
+  <ol class="next">
+    <li><b>{{ first }} has your request</b> in their Walk-In bookings{{ ' and by email' if owner_emailed }}.</li>
+    <li><b>They'll confirm with you</b> on WhatsApp, at the number you gave{{ '. You\'ll also get an email' if last and last.get('email') and email_on }}.</li>
+    <li><b>Pay {{ first }} at the session.</b> Nothing to pay now.</li>
+  </ol>
+  {% if last and last.token %}<a class="btn full" href="/b/{{ last.token }}">View or cancel your booking</a>{% endif %}
+  {% if wa_booking %}
+  <div class="optwa">
+    <b>Want to say hi first? (optional)</b>
+    <span>Your booking is already sent. This only opens a WhatsApp chat with {{ first }}, with a short note written for you.</span>
+    <a class="btn ghost sm" href="{{ wa_booking }}" target="_blank"><svg class="i"><use href="#i-wa"/></svg>Message {{ first }} on WhatsApp</a>
+  </div>
+  {% endif %}
+  {% if last and last.linked %}<p class="small muted" style="margin-top:12px">Saved in <a href="/me">My bookings</a>.</p>
+  {% elif last and last.token %}<p class="small muted" style="margin-top:12px">Keep the link above to check your booking later, or <a href="/signup/customer">create a free account</a> to keep all your bookings in one place.</p>{% endif %}
+  <a class="btn ghost full" style="margin-top:8px" href="/u/{{ page_slug }}">Back to {{ first }}'s page</a>
+</section>
+<style>
+.next{text-align:left;margin:14px 0 16px;padding-left:20px;line-height:1.55;font-size:.94rem}
+.next li{margin:4px 0}
+.optwa{text-align:left;background:var(--sunken);border-radius:10px;padding:12px 14px;margin-top:14px;display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.optwa span{font-size:.86rem;color:var(--muted)}
+</style>
+</div>
+{% else %}
+
+<section class="hero" {% if page.cover %}style="--cover:url('/media/{{ page.cover }}')"{% endif %}>
+  <div class="hero-in">
+    <div class="poster" style="--tint:{{ tint }}">{% if page.photo %}<img src="/media/{{ page.photo }}" alt="{{ page.name }}">{% elif page.cover %}<img src="/media/{{ page.cover }}" alt="{{ page.name }}">{% else %}<b>{{ page.name[:1]|upper }}</b>{% endif %}</div>
+    <div>
+      <h1>{{ page.name }}{% if page.sample %} <span class="pill done" style="vertical-align:6px">Demo</span>{% endif %}{% if page.verified %} <span class="vtick" title="Verified: met in person by the Walk-In team">✓</span>{{ tip("<b>Verified</b>: the Walk-In team has met this creator in person, at the cafe where they work.", "What does verified mean?") }}{% endif %}</h1>
+      <div class="sub">{{ page.craft }}{% if page.areas %}, {{ page.areas }}{% elif page.city %}, {{ page.city }}{% endif %}</div>
+      <div class="meta">{% if from_price %}<span>From {{ from_price }}</span>{% endif %}{% if langs %}<span>{{ langs }}</span>{% endif %}{% if services|length %}<span>{{ services|length }} service{{ 's' if services|length > 1 }}</span>{% endif %}</div>
+      {% if status %}<div class="status {{ 'live' if status.live }}"><i></i>{{ status.text }}{{ tip("Where this creator is sitting next. A green dot means they're at the cafe right now, so you can also just walk up.", "Where they are") }}</div>{% endif %}
+      <div class="quick">
+        {% if page.booking_open %}<a class="btn" href="#book">Book now</a>{% endif %}
+        {% if wa %}<a class="btn ghost" href="{{ wa }}"><svg class="i"><use href="#i-wa"/></svg>WhatsApp</a>{% endif %}
+      </div>
+    </div>
+  </div>
+</section>
+<div class="in">
+{% if page.bio %}
+<section class="block"><h2>About</h2><p class="bio">{{ page.bio }}</p></section>
+{% endif %}
+
+{% if services %}
+<section class="block">
+  <h2>Services</h2>
+  <div class="panel">
+    {% for s in services %}
+    <div class="svc">
+      <div class="t"><b>{{ s.name }}</b>{% if s.detail %}<span>{{ s.detail }}</span>{% endif %}</div>
+      {% if s.price %}<div class="p">{{ s.price }}</div>{% endif %}
+      {% if page.booking_open %}<a class="btn ghost sm" href="#book" data-pick="{{ s.name }}">Book</a>{% endif %}
+    </div>{% endfor %}
+  </div>
+</section>
+{% endif %}
+
+{% if sittings or schedule %}
+<section class="block">
+  <h2>Where to find {{ page.name.split()[0] }}</h2>
+  {% if sittings %}
+  <div class="panel">
+    {% for o in sittings[:8] %}
+    <div class="when-row">
+      <div class="dbox">{{ o.label }}</div>
+      <div class="v">{{ o.venue }}<span>{{ o.hours }}</span></div>
+      {% if not o.times %}<span class="pill done">Full</span>{% endif %}
+    </div>{% endfor %}
+  </div>
+  {% endif %}
+  {% if schedule %}<div class="small muted" style="margin-top:10px">{% for s in schedule %}<div>{{ s }}</div>{% endfor %}</div>{% endif %}
+</section>
+{% endif %}
+
+{% if page.booking_open %}
+<section class="block" id="book">
+  <h2>Book a session</h2>
+  <form method="post" action="/u/{{ page_slug }}/book" id="bf">
+    {% if service_names %}
+    <div class="step"><h3><em>1.</em>Choose a service{{ tip("Prices are set by the creator, and you pay them directly at the session. Not sure? Pick <b>Not sure yet</b> and decide together.", "About services") }}</h3>
+      {% for s in services %}
+      <label class="opt"><input type="radio" name="service" value="{{ s.name }}" {{ 'checked' if loop.first }}>
+        <div class="svc"><span class="radio"></span><div class="t"><b>{{ s.name }}</b>{% if s.detail %}<span>{{ s.detail }}</span>{% endif %}</div>{% if s.price %}<div class="p">{{ s.price }}</div>{% endif %}</div>
+      </label>{% endfor %}
+      <label class="opt"><input type="radio" name="service" value="">
+        <div class="svc"><span class="radio"></span><div class="t"><b>Not sure yet</b><span>Decide together on the day</span></div></div></label>
+    </div>
+    {% endif %}
+
+    {% set open_sittings = sittings | selectattr('times') | list %}
+    <div class="step"><h3><em>{{ 2 if service_names else 1 }}.</em>Pick a day and time{{ tip("Only times the creator has opened are shown. Green boxes are free; booked times disappear, so nobody else can take yours.", "About times") }}</h3>
+      {% if open_sittings %}
+      <div class="dates" id="dates" role="group" aria-label="Day"></div>
+      <div id="slots"></div>
+      <div class="legend" id="legend"><span><i></i>Available</span><span><i class="sel"></i>Selected</span></div>
+      <input type="hidden" name="when" id="when">
+      <div id="otherbox" hidden><label for="pref">What day and time suits you?</label><input id="pref" name="preferred" maxlength="120" placeholder="e.g. Sunday evening, or online"></div>
+      {% else %}
+      <label for="pref">What day and time suits you?</label><input id="pref" name="preferred" maxlength="120" placeholder="e.g. Saturday around 5 PM">
+      {% endif %}
+    </div>
+
+    <div class="step"><h3><em>{{ 3 if service_names else 2 }}.</em>Your details{{ tip("Only this creator sees your details. They'll use your WhatsApp number to confirm. No account or password needed.", "About your details") }}</h3>
+      {% if viewer and viewer.role == 'customer' %}<p class="small muted" style="margin:0 0 6px">Booking as <b>{{ viewer.name }}</b>. It'll be saved in <a href="/me">My bookings</a>.</p>
+      {% elif not viewer %}<p class="small muted" style="margin:0 0 6px">Have an account? <a href="/login?as=customer&next={{ ('/u/' ~ page_slug ~ '#book')|urlencode }}">Log in</a> to fill this in. Or just continue as a guest.</p>{% endif %}
+      <div class="row stack">
+        <div><label for="bn">Name</label><input id="bn" name="name" required maxlength="80" autocomplete="name" value="{{ viewer.name if viewer and viewer.role == 'customer' else '' }}"></div>
+        <div><label for="bp">WhatsApp number</label><input id="bp" name="phone" required inputmode="tel" maxlength="30" autocomplete="tel" value="{{ viewer.phone if viewer and viewer.role == 'customer' else '' }}"></div>
+      </div>
+      <label for="be">Email <span class="faint">(optional, for a confirmation email)</span></label>
+      <input id="be" name="email" type="email" maxlength="120" autocapitalize="none" autocomplete="email" value="{{ viewer.email if viewer and viewer.role == 'customer' else '' }}">
+      <label for="bnote">Anything {{ page.name.split()[0] }} should know? <span class="faint">(optional)</span></label>
+      <textarea id="bnote" name="note" rows="2" maxlength="500"></textarea>
+      <input class="hp" name="website" tabindex="-1" autocomplete="off" aria-hidden="true">
+    </div>
+
+    <p class="small muted" style="margin:14px 0 0">No payment now: you pay {{ page.name.split()[0] }} directly at your session. Free to cancel from your booking link. <a href="/help#booking" target="_blank">How booking works</a></p>
+    <div class="dock">
+      <div class="in">
+        <div class="sum"><b id="sumA">Choose a time</b><span id="sumB">{{ page.name }}</span></div>
+        <button class="btn" id="go">Request booking</button>
+      </div>
+    </div>
+  </form>
+</section>
+{% endif %}
+</div>
+{% endif %}
+
+{% if insta %}<p class="foot" style="margin-top:28px"><a href="https://instagram.com/{{ insta }}" target="_blank">@{{ insta }} on Instagram</a></p>{% endif %}
+{% include "_footer.html" %}
+{% endblock %}
+{% block script %}
+<script>
+(function(){
+  const SIT = {{ (sittings_json or []) | tojson }};
+  const form = document.getElementById("bf"); if(!form) return;
+  const datesEl = document.getElementById("dates"), slotsEl = document.getElementById("slots");
+  const whenEl = document.getElementById("when"), other = document.getElementById("otherbox");
+  const sumA = document.getElementById("sumA"), sumB = document.getElementById("sumB");
+  const svcInputs = [...form.querySelectorAll("input[name=service]")];
+  const svc = () => (svcInputs.find(i => i.checked) || {}).value || "";
+  const esc = s => s.replace(/[&<>"]/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+  let render = summary;
+
+  // "Book" buttons on the services list preselect that service
+  document.querySelectorAll("[data-pick]").forEach(a => a.addEventListener("click", () => {
+    const i = svcInputs.find(x => x.value === a.dataset.pick); if(i){ i.checked = true; render(); }
+  }));
+
+  if(datesEl){
+    const byDate = {};
+    SIT.filter(s => s.times.length).forEach(s => (byDate[s.date] = byDate[s.date] || []).push(s));
+    const dates = Object.keys(byDate).sort();
+    let current = dates[0];
+    const chip = (key, top, mid, bot) => {
+      const b = document.createElement("button"); b.type = "button"; b.className = "dchip"; b.dataset.key = key;
+      b.innerHTML = `<small>${top}</small><b>${mid}</b><span>${bot}</span>`;
+      b.onclick = () => { current = key; render(); }; return b;
+    };
+    dates.forEach(d => { const [dow, num, mon] = byDate[d][0].label.split(" "); datesEl.appendChild(chip(d, dow, num, mon)); });
+    datesEl.appendChild(chip("other", "Other", "…", "ask"));
+
+    render = function(){
+      datesEl.querySelectorAll(".dchip").forEach(b => b.setAttribute("aria-pressed", b.dataset.key === current));
+      const isOther = current === "other";
+      other.hidden = !isOther; slotsEl.hidden = isOther; const lg = document.getElementById("legend"); if(lg) lg.hidden = isOther;
+      if(isOther){ whenEl.value = "other"; summary(); return; }
+      const keep = form.querySelector("input[name=time]:checked");
+      const keepVal = keep ? keep.dataset.k + "|" + keep.value : "";
+      slotsEl.innerHTML = "";
+      byDate[current].forEach(s => {
+        const okSvc = !s.services.length || !svc() || s.services.includes(svc());
+        const h = document.createElement("div"); h.className = "venue";
+        h.innerHTML = `<svg class="i"><use href="#i-pin"/></svg>${esc(s.venue)}` +
+          (okSvc ? "" : `<span class="faint small" style="font-weight:500">: this service isn't offered here</span>`);
+        slotsEl.appendChild(h);
+        if(!okSvc) return;
+        const g = document.createElement("div"); g.className = "times";
+        s.times.forEach(t => {
+          const l = document.createElement("label"); l.className = "tchip";
+          l.innerHTML = `<input type="radio" name="time" value="${t.v}" data-k="${s.key}"><span>${t.label}</span>`;
+          const inp = l.querySelector("input");
+          if(keepVal === s.key + "|" + t.v) inp.checked = true;
+          inp.onchange = () => { whenEl.value = s.key; summary(); };
+          g.appendChild(l);
+        });
+        slotsEl.appendChild(g);
+      });
+      const sel = form.querySelector("input[name=time]:checked");
+      whenEl.value = sel ? sel.dataset.k : "";
+      summary();
+    };
+  }
+
+  function summary(){
+    const t = form.querySelector("input[name=time]:checked");
+    if(whenEl && whenEl.value === "other") sumA.textContent = "Time to be agreed";
+    else if(t){ const s = SIT.find(x => x.key === t.dataset.k); sumA.textContent = `${s.label}, ${t.nextElementSibling.textContent}`; }
+    else if(datesEl) sumA.textContent = "Choose a time";
+    else sumA.textContent = "Request a session";
+    sumB.textContent = svc() || "Service to be decided";
+  }
+  svcInputs.forEach(i => i.addEventListener("change", () => render()));
+  form.addEventListener("submit", e => {
+    if(whenEl && !whenEl.value){ e.preventDefault(); datesEl.scrollIntoView({behavior:"smooth", block:"center"}); sumA.textContent = "Pick a time first"; return; }
+    const b = document.getElementById("go"); b.disabled = true; b.textContent = "Sending…";
+  });
+  render();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% block title %}{{ {'help': 'Help & contact', 'privacy': 'Privacy', 'terms': 'Terms'}[page] }} · Walk-In{% endblock %}
+{% block bodyclass %}site-page{% endblock %}
+{% block head %}<style>
+.site-page .wrap{max-width:none;padding:0}
+.doc{max-width:760px;margin:0 auto;padding:24px 16px 0}
+.doc h1{font-size:1.8rem;margin:8px 0 6px}
+.doc h2{font-size:1.2rem;margin:28px 0 8px;scroll-margin-top:90px}
+.doc p,.doc li{line-height:1.6}
+.doc ul{padding-left:20px}
+.doc .box{background:var(--surface);border-radius:var(--r);padding:16px 18px;margin:14px 0}
+.tabs{display:flex;gap:18px;border-bottom:1px solid var(--line);margin-bottom:10px}
+.tabs a{padding:10px 0;color:var(--muted)}
+.tabs a.on{color:var(--ink);border-bottom:2px solid var(--brand);font-weight:600}
+</style>{% endblock %}
+{% block body %}
+{% include "_site_header.html" %}
+<div class="doc">
+<nav class="tabs"><a href="/help" class="{{ 'on' if page == 'help' }}">Help &amp; contact</a><a href="/privacy" class="{{ 'on' if page == 'privacy' }}">Privacy</a><a href="/terms" class="{{ 'on' if page == 'terms' }}">Terms</a></nav>
+
+{% if page == 'help' %}
+<h1>Help &amp; contact</h1>
+<p class="muted">Walk-In helps you book a session with independent creators who work from cafes: tarot readers, mehendi artists, portrait sketchers and more.</p>
+
+<h2 id="booking">How booking works</h2>
+<ol>
+  <li><b>Pick a creator</b> on the homepage. Filter by service, area, or when they're available.</li>
+  <li><b>Choose a service and a time.</b> Only times the creator has opened are shown, and taken times disappear, so two people can't book the same slot.</li>
+  <li><b>Enter your name and WhatsApp number.</b> No account and no app needed. Add an email if you'd like a confirmation email.</li>
+  <li><b>The creator confirms</b> on WhatsApp or by email. You'll get a private link to check your booking at any time.</li>
+  <li><b>Pay the creator directly at your session.</b> Walk-In never takes payment, so there are no booking fees.</li>
+</ol>
+
+<h2 id="cancel">Cancelling or changing a booking</h2>
+<ul>
+  <li>Open the link from your confirmation (on the "Request sent" screen, or in your email) and tap <b>Cancel my booking</b>. The creator is told right away, and the slot opens up for someone else.</li>
+  <li>To change the time, message the creator on WhatsApp from that same page, or cancel and book a new time.</li>
+  <li>Creators can also decline a request if they can't make it. If that happens, pick another time on their page.</li>
+  <li>Since you only pay at the session, there's nothing to refund when you cancel.</li>
+</ul>
+
+<h2 id="safety">Safety and trust</h2>
+<ul>
+  <li>Creators with a <b>✓ Verified</b> badge have been met in person by the Walk-In team, at the cafe where they work.</li>
+  <li>Sessions happen in public places: the cafes listed on each creator's page.</li>
+  <li>Readings (tarot, palm, astrology) are for reflection and entertainment. They're not medical, legal or financial advice.</li>
+  <li>If something went wrong with a creator, tell us using the contact below.</li>
+</ul>
+
+<h2 id="creators">For creators</h2>
+<ul>
+  <li><b>Forgot your password?</b> Use <a href="/forgot">Forgot password</a> on the login page. If no email is saved on your account, the admin can reset it for you.</li>
+  <li><b>Where do bookings arrive?</b> In the <b>Bookings</b> tab of your Creator studio, always. You can also get an email and an instant phone notification (set them up under My page). Customers may also choose to message you on WhatsApp, but that's optional, so don't rely on it.</li>
+  <li><b>Is the AI sending messages for me?</b> No. It writes a draft. You read it, edit it, and send it yourself from WhatsApp. Nothing is sent without you tapping Send.</li>
+</ul>
+
+<h2 id="contact">Contact</h2>
+<div class="box">
+  {% if contact_email() %}Email <a href="mailto:{{ contact_email() }}">{{ contact_email() }}</a>. We aim to reply within a day.
+  {% else %}For a question about a booking, message the creator on WhatsApp from their page.{% endif %}
+</div>
+
+{% elif page == 'privacy' %}
+<h1>Privacy</h1>
+<p class="muted">Short version: we collect only what's needed for a booking, we never sell it, and the AI runs on Walk-In's own computer, not at an AI company.</p>
+
+<h2>If you book a session</h2>
+<ul>
+  <li><b>What we keep:</b> your name, WhatsApp number, the service and time you chose, and, if you give them, your email and a note to the creator.</li>
+  <li><b>Who sees it:</b> only the creator you booked, and the Walk-In admin when needed to fix a problem.</li>
+  <li><b>What it's used for:</b> your booking, its confirmation and reminders. Never for ads, and it's never sold or shared with anyone else.</li>
+  <li><b>Emails</b> are sent through Gmail. <b>WhatsApp</b> messages are sent by you or the creator from your own phones.</li>
+</ul>
+
+<h2>If you're a creator</h2>
+<ul>
+  <li>We keep your profile, schedule, bookings, the sittings you log, and the messages you draft.</li>
+  <li>Your password is stored only as a salted hash, so nobody can read it. If you connect your own Gmail, its app password is stored encrypted.</li>
+  <li>Other creators can't see your bookings, notes or earnings.</li>
+  <li>You can download all your data or delete your account at any time, under <b>My data</b>. Deleting removes your page, bookings, notes and photos.</li>
+</ul>
+
+<h2>The AI</h2>
+<p>Message drafts are written by Gemma, and "Best slots" predictions by TabPFN. Both are open models running on Walk-In's own computer. Client notes are not sent to OpenAI, Google, or any other AI company.</p>
+
+<h2>Where data is stored</h2>
+<p>On the Walk-In server in India, with a daily backup. Connections to Walk-In are encrypted (HTTPS).</p>
+
+<h2>Your choices</h2>
+<p>To see, correct or delete what we hold about you as a customer, contact us{% if contact_email() %} at <a href="mailto:{{ contact_email() }}">{{ contact_email() }}</a>{% else %} through the creator you booked{% endif %}, and we'll do it within 7 days.</p>
+
+{% else %}
+<h1>Terms</h1>
+<p class="muted">The plain-language rules for using Walk-In.</p>
+
+<h2>What Walk-In is</h2>
+<p>Walk-In is a listing and booking-request tool. Creators listed here are independent: they're not employed by Walk-In, and they set their own services, prices and hours. When you book, your agreement for the session is with the creator.</p>
+
+<h2>Payments</h2>
+<p>Walk-In doesn't process payments or charge booking fees. You pay the creator directly, usually at the session.</p>
+
+<h2>Bookings and cancellations</h2>
+<ul>
+  <li>A booking is a request until the creator confirms it.</li>
+  <li>Customers can cancel free of charge from their booking link. Please cancel as early as you can.</li>
+  <li>Creators may decline requests, and should tell customers early if they can't make a confirmed time.</li>
+</ul>
+
+<h2>Readings and advice</h2>
+<p>Tarot, palm reading, astrology and similar services are for reflection and entertainment. They're not a substitute for medical, legal, financial or mental-health advice.</p>
+
+<h2>For creators</h2>
+<ul>
+  <li>Keep your page accurate: real photos of you or your work, real prices, and times you'll actually be there.</li>
+  <li>Use customers' details only for their booking. Don't add them to marketing lists without asking.</li>
+  <li>AI drafts are suggestions. You're responsible for what you send.</li>
+  <li>We may remove pages that are misleading, unsafe or abusive.</li>
+</ul>
+
+<h2>The service</h2>
+<p>Walk-In is a new, free service, provided as it is. We work to keep it online and your data safe, but we can't promise it will always be available. These terms may change. If they do, we'll update this page.</p>
+{% endif %}
+<p class="small faint" style="margin-top:28px">Last updated October 2026.</p>
+</div>
+{% include "_footer.html" %}
+{% endblock %}

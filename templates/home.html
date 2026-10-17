@@ -1,0 +1,120 @@
+{% extends "base.html" %}
+{% block head %}
+<style>
+.plan{font-size:1.05rem;margin:6px 0 0}
+.req{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:14px 0;border-bottom:1px solid var(--line)}
+.req:last-of-type{border-bottom:0}
+.req .who b{display:block}
+.req .who span{color:var(--muted);font-size:.9rem}
+.req form{margin:0}
+.btns{display:flex;gap:8px;flex:none}
+.share{display:flex;gap:16px;align-items:center}
+.share img{width:96px;height:96px;flex:none}
+@media (max-width:480px){.req{flex-direction:column;align-items:stretch}.btns .btn{flex:1}}
+</style>
+{% endblock %}
+{% block body %}
+<div class="ph"><div><h1>Hi, {{ (profile.name or me.username).split()[0] }}</h1>
+  {% if today %}{% for o in today %}<p class="plan">Today you're at <b>{{ o.venue }}</b>, {{ fmt_time(o.start) }} to {{ fmt_time(o.end) }}{% if todays_bookings %}, with {{ todays_bookings|length }} booking{{ 's' if todays_bookings|length > 1 }}{% endif %}.</p>{% endfor %}
+  {% elif next_up %}<p class="plan">No sitting today. Next: <b>{{ next_up.label }}</b> at {{ next_up.venue }}, {{ fmt_time(next_up.start) }}.</p>
+  {% else %}<p class="plan">You haven't added your schedule yet. <a href="/app/schedule">Add when and where you sit</a> so customers can book.</p>{% endif %}
+  {% if not ai_ok %}<p class="small" style="color:var(--warn)">{{ ai_status if is_admin else 'AI writing is offline right now. Bookings still work.' }}</p>{% endif %}
+</div></div>
+
+{% if steps_done < steps|length %}
+<section class="card" id="setup">
+  <h3>Get your page ready: {{ steps_done }} of {{ steps|length }} done{{ tip("Finish these so customers can find and book you. Each item opens the page where you do it. This card disappears once everything is done.", "Setup checklist") }}</h3>
+  <div class="setup-bar"><i style="width:{{ (100 * steps_done / steps|length)|int }}%"></i></div>
+  <ul class="setup-list">
+    {% for title, hint, done, url in steps %}
+    <li class="{{ 'ok' if done }}"><span class="sbox">{{ '✓' if done }}</span><div><a href="{{ url }}">{{ title }}</a><span>{{ hint }}</span></div></li>
+    {% endfor %}
+  </ul>
+  <p class="small muted" style="margin-bottom:0">Then <a href="{{ public_url }}" target="_blank">preview your page</a> the way customers see it.</p>
+</section>
+{% endif %}
+
+{% if reminders %}
+<section class="card" id="reminders">
+  <h3>Send reminders{{ tip("Confirmed bookings for later today and tomorrow. <b>Send reminder</b> opens WhatsApp with the message already written; you just tap Send. Reminders cut no-shows.", "Reminders") }}</h3>
+  <p class="small muted" style="margin-top:0">Confirmed bookings coming up. One tap opens WhatsApp with the reminder written.</p>
+  {% for r in reminders %}
+  <div class="req">
+    <div class="who"><b>{{ r.name }}</b><span>{{ r.service or 'Session' }}, {{ r.when }}</span></div>
+    <div class="btns">
+      {% if r.wa %}<a class="btn sm" href="{{ r.wa }}" target="_blank" data-remind="{{ r.id }}">Send reminder</a>{% endif %}
+      <form method="post" action="/app/bookings/{{ r.id }}/reminded"><button class="btn ghost sm">Already sent</button></form>
+    </div>
+  </div>
+  {% endfor %}
+</section>
+{% endif %}
+
+{% if todays_bookings %}
+<section class="card">
+  <h3>Today's bookings{{ tip("Everyone booked with you today, in time order. <b>New</b> means you haven't confirmed yet.", "Today's bookings") }}</h3>
+  <table>
+    {% for b in todays_bookings %}<tr><td style="width:84px"><b>{{ fmt_time(b.slot_time) }}</b></td><td>{{ b.name }}<br><span class="small muted">{{ b.service or 'Service not chosen' }}</span></td><td class="num"><span class="pill {{ b.status }}">{{ b.status|capitalize }}</span></td></tr>{% endfor %}
+  </table>
+</section>
+{% endif %}
+
+<section class="card">
+  <h3>Requests to confirm{{ tip("New booking requests from your page. <b>Confirm</b> tells the customer (by email if they gave one) and opens a WhatsApp message to send them. <b>Decline</b> frees the time for someone else.", "Requests") }}</h3>
+  {% if not recent %}<p class="muted">No new requests.</p>{% endif %}
+  {% for b in recent %}
+  <div class="req">
+    <div class="who"><b>{{ b.name }}</b><span>{{ b.service or 'Any service' }}{% if b.preferred %}, {{ b.preferred }}{% endif %}</span></div>
+    <div class="btns">
+      <form method="post" action="/app/bookings/{{ b.id }}/confirmed"><button class="btn ok sm">Confirm</button></form>
+      <form method="post" action="/app/bookings/{{ b.id }}/declined"><button class="btn ghost sm">Decline</button></form>
+    </div>
+  </div>
+  {% endfor %}
+  {% if recent %}<p class="small"><a href="/app/bookings">All bookings</a></p>{% endif %}
+</section>
+
+<section class="card">
+  <h3>Your booking page{{ tip("This is the link customers use to book you. Print the QR code and keep it on your table, and put the link in your Instagram bio.", "Booking page") }}</h3>
+  <div class="share">
+    <img src="/app/qr.png" alt="QR code for your booking page">
+    <div>
+      <p style="margin-top:0;word-break:break-all"><a href="{{ public_url }}" target="_blank">{{ public_url.split('://')[-1] }}</a></p>
+      <div class="actions" style="margin-top:8px">
+        <a class="btn sm" href="/app/qr.png" download="{{ slug }}-qr.png">Download QR code</a>
+        <button class="btn ghost sm" onclick="navigator.share ? navigator.share({title:'{{ profile.name }}', url:'{{ public_url }}'}) : copyText({textContent:'{{ public_url }}'}, this)">Copy link</button>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="card" id="install" hidden>
+  <h3>Use Walk-In like an app</h3>
+  <p class="small muted" style="margin-top:0">Add it to your home screen so it opens with one tap.</p>
+  <button class="btn ghost sm" id="installbtn">Add to home screen</button>
+</section>
+<section class="card" id="install-ios" hidden>
+  <h3>Use Walk-In like an app</h3>
+  <p class="small muted" style="margin-top:0">In Safari, tap the Share button, then <b>Add to Home Screen</b>.</p>
+</section>
+
+{% if todo %}
+<section class="card">
+  <h3>To finish your page</h3>
+  <ul style="padding-left:18px;margin:6px 0">{% for text, url in todo %}<li style="margin:4px 0"><a href="{{ url }}">{{ text }}</a></li>{% endfor %}</ul>
+</section>
+{% endif %}
+{% endblock %}
+{% block script %}
+<script>
+document.querySelectorAll("[data-remind]").forEach(a => a.addEventListener("click", () => {
+  fetch(`/app/bookings/${a.dataset.remind}/reminded`, {method:"POST", headers:{Accept:"application/json"}});
+  setTimeout(() => { const row = a.closest(".req"); if(row) row.remove(); }, 400);
+}));
+const standalone = matchMedia("(display-mode: standalone)").matches || navigator.standalone;
+let deferred;
+window.addEventListener("beforeinstallprompt", e => { e.preventDefault(); deferred = e; if(!standalone) document.getElementById("install").hidden = false; });
+document.getElementById("installbtn").onclick = async () => { if(!deferred) return; deferred.prompt(); await deferred.userChoice; document.getElementById("install").hidden = true; };
+if(!standalone && /iphone|ipad/i.test(navigator.userAgent)) document.getElementById("install-ios").hidden = false;
+</script>
+{% endblock %}

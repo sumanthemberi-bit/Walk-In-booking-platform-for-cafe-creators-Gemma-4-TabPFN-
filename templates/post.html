@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>Make a post{{ tip("Write an Instagram post, WhatsApp status or Google Business update about where you'll be. It uses only the services and prices on your page, never made-up offers.", "Social posts") }}</h1>
+<p class="muted">One line in, a ready post out. Uses your services, timings and voice from My page.</p>
+<form class="card" id="f" method="post" action="/api/post">
+  <div class="row">
+    <div><label>Platform</label><select name="platform"><option>Instagram</option><option>WhatsApp Status</option><option>Google Business</option></select></div>
+    <div><label>Language</label><select name="language">{% for l in LANGS %}<option>{{ l }}</option>{% endfor %}</select></div>
+  </div>
+  <label>What do you want to say?</label>
+  <textarea name="idea" required rows="3" placeholder="At Blondie Khar this Saturday from 3 PM. Walk in for a quick reading or book a longer one."></textarea>
+  <button class="btn full" id="go">Write post</button>
+  <div id="result" hidden>
+    <textarea id="text" rows="9" style="margin-top:12px"></textarea>
+    <div class="actions"><button type="button" class="btn ghost" id="copy">Copy</button><button type="submit" class="btn ghost">Try again</button></div>
+  </div>
+</form>
+{% endblock %}
+{% block script %}
+<script>
+const f = document.getElementById("f"), text = document.getElementById("text");
+f.onsubmit = async (e) => { e.preventDefault(); const j = await ai(f, document.getElementById("go"));
+  if(j){ text.value = j.text; document.getElementById("result").hidden = false; } };
+document.getElementById("copy").onclick = (e) => copyText(text, e.target);
+</script>
+{% endblock %}

@@ -1,0 +1,74 @@
+{% extends "base.html" %}
+{% block title %}My bookings · Walk-In{% endblock %}
+{% block bodyclass %}site-page{% endblock %}
+{% block head %}<style>
+.site-page .wrap{max-width:none;padding:0}
+.mine{max-width:760px;margin:0 auto;padding:22px 16px 0}
+.mine h1{margin:0 0 4px}
+.bk{display:flex;gap:14px;align-items:center;background:#fff;border-radius:12px;padding:14px 16px;margin:10px 0;color:var(--ink)}
+.bk:hover{text-decoration:none;box-shadow:0 2px 10px rgba(0,0,0,.07)}
+.bk .when{flex:none;width:58px;text-align:center;border-right:1px solid var(--line);padding-right:12px}
+.bk .when b{display:block;font-size:1.3rem;line-height:1}
+.bk .when span{font-size:.75rem;color:var(--muted);text-transform:uppercase}
+.bk .what{flex:1;min-width:0}
+.bk .what b{display:block}
+.bk .what span{color:var(--muted);font-size:.9rem}
+.sec-h{display:flex;justify-content:space-between;align-items:baseline;margin:26px 0 4px}
+.acct{background:#fff;border-radius:12px;padding:18px;margin-top:10px}
+</style>{% endblock %}
+{% block body %}
+{% include "_site_header.html" %}
+<div class="mine">
+  {% if flash %}<div class="flash" role="status"><span>{{ flash }}</span></div>{% endif %}
+  <h1>Hi, {{ customer.name.split()[0] }}</h1>
+  <p class="muted" style="margin:0">Your bookings with Walk-In creators.{{ tip("Bookings you make while logged in show up here. Tap one to see its status, message the creator, or cancel.", "My bookings") }}</p>
+
+  <div class="sec-h"><h2 style="margin:0">Upcoming</h2><a href="/">Book something new ›</a></div>
+  {% for b in upcoming %}
+  <a class="bk" href="/b/{{ b.token }}">
+    <div class="when">{% if b.slot_date %}{% set d = b.slot_date.split('-') %}<b>{{ d[2]|int }}</b><span>{{ ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d[1]|int - 1] }}</span>{% else %}<b>?</b><span>flexible</span>{% endif %}</div>
+    <div class="what"><b>{{ b.creator }}</b><span>{{ b.service or 'Session' }} · {{ b.preferred or 'time to be agreed' }}</span></div>
+    <span class="pill {{ b.status }}">{{ 'Waiting' if b.status == 'new' else b.status|capitalize }}</span>
+  </a>
+  {% else %}
+  <div class="acct"><b>No upcoming bookings.</b><p class="muted small" style="margin:4px 0 10px">Find a tarot reader, mehendi artist or portrait sketcher near you.</p><a class="btn sm" href="/">Browse creators</a></div>
+  {% endfor %}
+
+  {% if past %}
+  <div class="sec-h"><h2 style="margin:0">Past and cancelled</h2></div>
+  {% for b in past %}
+  <a class="bk" href="/b/{{ b.token }}" style="opacity:.8">
+    <div class="when">{% if b.slot_date %}{% set d = b.slot_date.split('-') %}<b>{{ d[2]|int }}</b><span>{{ ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d[1]|int - 1] }}</span>{% else %}<b>·</b><span>&nbsp;</span>{% endif %}</div>
+    <div class="what"><b>{{ b.creator }}</b><span>{{ b.service or 'Session' }} · {{ b.preferred or '' }}</span></div>
+    <span class="pill {{ b.status }}">{{ b.status|capitalize }}</span>
+  </a>
+  {% endfor %}
+  {% endif %}
+
+  <div class="sec-h" id="account"><h2 style="margin:0">Your details</h2></div>
+  <div class="acct">
+    <form method="post" action="/me/details">
+      <div class="row stack">
+        <div><label for="n">Name</label><input id="n" name="name" required value="{{ customer.name }}"></div>
+        <div><label for="ph">WhatsApp number{{ tip("Filled in automatically when you book. Only the creators you book with see it.", "WhatsApp number") }}</label><input id="ph" name="phone" required inputmode="tel" value="{{ customer.phone }}"></div>
+      </div>
+      <p class="small muted">Email: {{ customer.email }}</p>
+      <button class="btn ghost sm">Save</button>
+    </form>
+    <details style="margin-top:16px"><summary class="small">Change password</summary>
+      <form method="post" action="/me/password">
+        <label for="cur">Current password</label><input id="cur" name="current" type="password" required autocomplete="current-password">
+        <div class="row stack"><div><label for="np">New password</label><input id="np" name="new" type="password" required minlength="8" autocomplete="new-password"></div>
+        <div><label for="np2">Again</label><input id="np2" name="again" type="password" required minlength="8" autocomplete="new-password"></div></div>
+        <button class="btn ghost sm" style="margin-top:10px">Change password</button>
+      </form>
+    </details>
+    <details style="margin-top:12px"><summary class="small">Delete my account</summary>
+      <p class="small muted">Your account is deleted. Creators keep the booking details they need for sessions you booked. Type <b>{{ customer.email }}</b> to confirm.</p>
+      <form method="post" action="/me/delete" onsubmit="return confirm('Delete your account?')"><input name="confirm" autocapitalize="none" placeholder="{{ customer.email }}"><button class="btn danger sm" style="margin-top:8px">Delete my account</button></form>
+    </details>
+    <form method="post" action="/logout" style="margin-top:16px"><button class="btn ghost sm">Log out</button></form>
+  </div>
+</div>
+{% include "_footer.html" %}
+{% endblock %}

@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Log in · Walk-In{% endblock %}
+{% block head %}{% include "_auth_style.html" %}{% endblock %}
+{% block body %}
+{% set w = who or 'customer' %}
+<div class="auth">
+<a class="brand" href="/"><span class="mark">W</span>Walk-In</a>
+<nav class="seg" aria-label="Account type">
+  <a class="{{ 'on' if w == 'customer' }}" href="/login?as=customer{{ '&next=' ~ (next|urlencode) if next }}" {{ 'aria-current=page' if w == 'customer' }}>I book sessions<small>Customer</small></a>
+  <a class="cr {{ 'on' if w == 'creator' }}" href="/login?as=creator" {{ 'aria-current=page' if w == 'creator' }}>I offer a service<small>Creator</small></a>
+</nav>
+{% if w == 'creator' %}<div class="whoband cr"><span class="ic"><svg class="i"><use href="#i-cal"/></svg></span><div><b>Creator studio</b><span>For tarot readers, mehendi artists and other creators who take bookings.</span></div></div>{% else %}<div class="whoband"><span class="ic"><svg class="i"><use href="#i-user"/></svg></span><div><b>Customer account</b><span>For people who book sessions. See, cancel and rebook your bookings.</span></div></div>{% endif %}
+<h1 style="margin-top:18px">{{ 'Log in to your Creator studio' if w == 'creator' else 'Log in to see your bookings' }}</h1>
+{% if error %}<div class="error">{{ error }}</div>{% endif %}
+<form method="post" action="/login">
+  <input type="hidden" name="next" value="{{ next or '' }}"><input type="hidden" name="who" value="{{ w }}">
+  <label for="u">{{ 'Username' if w == 'creator' else 'Email' }}</label>
+  <input id="u" name="username" required autocapitalize="none" autocomplete="{{ 'username' if w == 'creator' else 'email' }}" {{ 'type=email' if w == 'customer' }} value="{{ username or '' }}">
+  <label for="p">Password</label>
+  <input id="p" name="password" type="password" required autocomplete="current-password">
+  <button class="btn full">Log in</button>
+</form>
+<p class="small" style="text-align:center;margin-top:14px"><a href="/forgot">Forgot password?</a></p>
+<p class="small muted" style="text-align:center;margin-top:18px">
+  {% if w == 'creator' %}New creator? <a href="/signup">Create your page</a>{% else %}No account? <a href="/signup/customer{{ '?next=' ~ (next|urlencode) if next }}">Create one</a>, or just <a href="/">book as a guest</a>{% endif %}
+</p>
+</div>
+{% endblock %}

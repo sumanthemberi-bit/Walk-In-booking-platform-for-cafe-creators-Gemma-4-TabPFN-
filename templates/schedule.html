@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block body %}
+<h1>Schedule{{ tip("Customers can only book times you add here. Each sitting is split into 30-minute slots on your page, and booked slots disappear automatically.", "How the schedule works") }}</h1>
+<p class="muted">Set where you sit and when. Your public page shows the next two weeks, and customers can only book these times.</p>
+
+<form class="card" method="post" action="/app/schedule/add">
+  <h3>Add a sitting{{ tip("<b>Every week</b>: a regular spot, like every Saturday 3 to 8 PM at a cafe. <b>One date</b>: a one-off, like an event or pop-up.", "Weekly or one date") }}</h3>
+  <div class="actions" style="margin-top:4px">
+    <label style="display:flex;gap:6px;align-items:center;margin:0;font-weight:500"><input type="radio" name="kind" value="weekly" checked style="width:auto"> Every week</label>
+    <label style="display:flex;gap:6px;align-items:center;margin:0;font-weight:500"><input type="radio" name="kind" value="once" style="width:auto"> One date only</label>
+  </div>
+  <div id="weekly">
+    <label>Days</label>
+    <div class="days">{% for d in DAYNAMES %}<label class="day"><input type="checkbox" name="days" value="{{ loop.index0 }}"><span>{{ d }}</span></label>{% endfor %}</div>
+  </div>
+  <div id="once" hidden><label>Date</label><input type="date" name="date" min="{{ upcoming[0].date if upcoming else '' }}"></div>
+  <div class="row stack">
+    <div><label>Place</label>
+      <select name="venue" id="venue">{% for v in venues %}<option>{{ v }}</option>{% endfor %}<option value="">+ New place</option></select></div>
+    <div id="newv" {% if venues %}hidden{% endif %}><label>New place</label><input name="new_venue" placeholder="e.g. Blondie, Khar · or Online (Google Meet)"></div>
+  </div>
+  <div class="row">
+    <div><label>From</label><select name="start">{% for t in TIMES %}<option value="{{ t }}" {{ 'selected' if t == 16 }}>{{ fmt_time(t) }}</option>{% endfor %}</select></div>
+    <div><label>To</label><select name="end">{% for t in TIMES %}<option value="{{ t }}" {{ 'selected' if t == 20 }}>{{ fmt_time(t) }}</option>{% endfor %}</select></div>
+  </div>
+  {% if services %}
+  <label>Services offered here <span class="muted small">(leave all unticked = all services)</span></label>
+  <div class="days">{% for s in services %}<label class="day"><input type="checkbox" name="services" value="{{ s }}"><span>{{ s }}</span></label>{% endfor %}</div>
+  {% endif %}
+  <button class="btn full">Add to schedule</button>
+</form>
+
+<div class="card">
+  <h3>Every week</h3>
+  {% if not weekly %}<p class="muted small" style="margin:0">Nothing yet. Add your regular sittings above.</p>{% endif %}
+  {% for d in range(7) %}{% set ds = weekly | selectattr('weekday', 'equalto', d) | list %}
+    {% if ds %}<div style="padding:8px 0;border-bottom:1px solid var(--line)"><b>{{ DAYNAMES[d] }}</b>
+      {% for s in ds %}
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:4px">
+        <span class="small">{{ fmt_time(s.start_hour) }}–{{ fmt_time(s.end_hour) }} · {{ s.venue }}{% if s.services %}<br><span class="muted">{{ s.services|join(', ') }}</span>{% endif %}</span>
+        <form method="post" action="/app/schedule/{{ s.id }}/delete"><button class="btn ghost icon" title="Remove" aria-label="Remove"><svg class="i"><use href="#i-x"/></svg></button></form>
+      </div>{% endfor %}
+    </div>{% endif %}
+  {% endfor %}
+</div>
+
+<div class="card">
+  <h3>Changes{{ tip("One-off dates you've added, and days off. A day off hides your weekly sittings for that date, so nobody can book it.", "Changes and days off") }}</h3>
+  {% for s in extras %}
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0">
+    <span class="small"><b>Extra</b> {{ s.date }}, {{ fmt_time(s.start_hour) }}–{{ fmt_time(s.end_hour) }} · {{ s.venue }}</span>
+    <form method="post" action="/app/schedule/{{ s.id }}/delete"><button class="btn ghost icon" title="Remove" aria-label="Remove"><svg class="i"><use href="#i-x"/></svg></button></form>
+  </div>{% endfor %}
+  {% for s in offs %}
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;padding:6px 0">
+    <span class="small"><b>Day off</b> {{ s.date }}</span>
+    <form method="post" action="/app/schedule/{{ s.id }}/delete"><button class="btn ghost icon" title="Remove" aria-label="Remove"><svg class="i"><use href="#i-x"/></svg></button></form>
+  </div>{% endfor %}
+  <form method="post" action="/app/schedule/off" style="margin-top:8px">
+    <label>Taking a day off?</label>
+    <div style="display:flex;gap:8px"><input type="date" name="date" required><button class="btn ghost sm">Mark off</button></div>
+  </form>
+</div>
+
+<div class="card">
+  <h3>Next 2 weeks <span class="muted small">(what customers see)</span>{{ tip("Exactly what your booking page shows for the next 14 days, including how many times are still free.", "Preview") }}</h3>
+  {% if not upcoming %}<p class="muted small" style="margin:0">Nothing scheduled yet.</p>{% endif %}
+  {% for o in upcoming %}
+  <div style="display:flex;justify-content:space-between;gap:10px;padding:7px 0;border-bottom:1px solid var(--line)">
+    <span><b>{{ o.label }}</b><br><span class="small muted">{{ o.venue }}</span></span>
+    <span class="small" style="text-align:right">{{ o.hours }}<br><span class="muted">{{ o.times|length }} times free</span></span>
+  </div>{% endfor %}
+  <a class="btn ghost sm" style="margin-top:12px" href="/u/{{ slug }}" target="_blank">View my public page</a>
+</div>
+{% endblock %}
+{% block head %}
+<style>
+.days{display:flex;flex-wrap:wrap;gap:6px}
+.day{margin:0;font-weight:500}
+.day input{position:absolute;opacity:0;width:1px;height:1px}
+.day span{display:inline-block;padding:8px 12px;border:1px solid var(--line);border-radius:999px;font-size:.9rem;cursor:pointer;user-select:none}
+.day input:checked+span{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.day input:focus-visible+span{outline:2px solid var(--accent)}
+</style>
+{% endblock %}
+{% block script %}
+<script>
+const v = document.getElementById("venue"), nv = document.getElementById("newv");
+v.onchange = () => nv.hidden = v.value !== "";
+document.querySelectorAll("input[name=kind]").forEach(r => r.onchange = () => {
+  const once = document.querySelector("input[name=kind]:checked").value === "once";
+  document.getElementById("weekly").hidden = once; document.getElementById("once").hidden = !once;
+});
+</script>
+{% endblock %}
