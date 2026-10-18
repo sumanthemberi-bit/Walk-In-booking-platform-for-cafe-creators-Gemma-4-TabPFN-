@@ -10,7 +10,7 @@ import hmac
 import secrets
 from pathlib import Path
 
-KEY_FILE = Path(__file__).parent / ".secret_key"
+KEY_FILE = Path(__file__).parent / 
 
 
 def key() -> str:
