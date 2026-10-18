@@ -1,6 +1,6 @@
 # Walk-In
 
-**Live:** [walkin.tailf0269d.ts.net](https://walkin.tailf0269d.ts.net) · **Write-up:** on DEV ✏️ · **Evaluation:** [eval/EVAL.md](eval/EVAL.md) · **Hand review:** [eval/REVIEW.md](eval/REVIEW.md) · **A tarot reader's review:** [eval/CREATOR_REVIEW.md](eval/CREATOR_REVIEW.md)
+**Live:** [walkin.tailf0269d.ts.net](https://walkin.tailf0269d.ts.net) ·  **Evaluation:** [eval/EVAL.md](eval/EVAL.md) · **Hand review:** [eval/REVIEW.md](eval/REVIEW.md) · **A tarot reader's review:** [eval/CREATOR_REVIEW.md](eval/CREATOR_REVIEW.md)
 
 **A booking platform for creators who work from a cafe table:** tarot readers, mehendi artists,
 caricaturists, palm readers, nail artists and musicians.
@@ -9,11 +9,8 @@ Built for the [Hacktoberfest Open-Source AI Challenge](https://dev.to/challenges
 (Week 2: Side Hustle), around a friend who reads tarot at three cafes in Mumbai and ran his bookings
 out of WhatsApp chats and memory.
 
-<img width="750" height="531" alt="Picture1" src="https://github.com/user-attachments/assets/86e0feda-50f1-4fea-9315-e7accf14f054" />
-
-
-<img width="595" height="577" alt="Picture2" src="https://github.com/user-attachments/assets/c231e012-0f47-4d81-b554-b1536d5913c7" />
-
+<img width="1280" height="860" alt="01-homepage" src="https://github.com/user-attachments/assets/115e4078-7369-4325-ae5c-07e1a9010f8c" />
+<img width="1280" height="820" alt="03-what-you-can-book" src="https://github.com/user-attachments/assets/6b327d93-ee6f-4d16-b812-79454b373014" />
 
 
 
