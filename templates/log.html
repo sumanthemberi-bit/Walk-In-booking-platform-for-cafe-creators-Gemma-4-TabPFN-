@@ -15,8 +15,6 @@
     <div><label>Customers</label><input type="number" name="customers" min="0" value="0" inputmode="numeric"></div>
     <div><label>Earnings (₹)</label><input type="number" name="earnings" min="0" step="1" value="0" inputmode="numeric"></div>
   </div>
-  <label>Weather</label>
-  <select name="weather">{% for w in WEATHER %}<option>{{ w }}</option>{% endfor %}</select>
   <button class="btn full">Save sitting</button>
 </form>
 
@@ -38,7 +36,7 @@
 
 <details class="card">
   <summary>Import from a spreadsheet (CSV)</summary>
-  <p class="small muted">Columns: <code>date, start_time, end_time, cafe, customers, earnings</code> (weather optional). Times like 16:00 or 4:30 PM.</p>
+  <p class="small muted">Columns: <code>date, start_time, end_time, cafe, customers, earnings</code>. Times like 16:00 or 4:30 PM.</p>
   <form method="post" action="/app/log/import" enctype="multipart/form-data">
     <input type="file" name="file" accept=".csv" required>
     <label style="display:flex;gap:10px;align-items:center;font-weight:500"><input type="checkbox" name="replace" style="width:auto"> Replace my existing sittings</label>

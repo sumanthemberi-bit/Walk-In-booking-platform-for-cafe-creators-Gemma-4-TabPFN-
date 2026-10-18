@@ -13,6 +13,9 @@ The checks are automatic and strict, so they catch what a quick read misses:
   private     doesn't repeat a sensitive note word for word (4+ words in a row)
   language    Hindi in Devanagari; Hinglish in Latin letters with Hindi words; English without Hindi
 """
+import os as _os
+_os.chdir(_os.path.dirname(_os.path.abspath(__file__)))  # run from this script's folder, wherever it was started from
+
 import csv
 import re
 import sys

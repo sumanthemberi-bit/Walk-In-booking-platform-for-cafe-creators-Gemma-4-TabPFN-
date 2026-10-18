@@ -10,6 +10,9 @@ using ONLY the sittings before it, then compare with what actually happened. Thr
   Overall mean   the dumbest guess: average earnings of every earlier sitting
 Prints the average error in ₹ (lower is better) and a table to paste into the write-up.
 """
+import os as _os
+_os.chdir(_os.path.dirname(_os.path.abspath(__file__)))  # run from this script's folder, wherever it was started from
+
 import sys
 import time
 

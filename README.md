@@ -1,6 +1,6 @@
 # Walk-In
 
-**Live:** [walkin.tailf0269d.ts.net](https://walkin.tailf0269d.ts.net) · **Write-up:** on DEV ✏️ · **Evaluation:** [eval/EVAL.md](eval/EVAL.md) · **Hand review:** [eval/REVIEW.md](eval/REVIEW.md)
+**Live:** [walkin.tailf0269d.ts.net](https://walkin.tailf0269d.ts.net) · **Write-up:** on DEV ✏️ · **Evaluation:** [eval/EVAL.md](eval/EVAL.md) · **Hand review:** [eval/REVIEW.md](eval/REVIEW.md) · **A tarot reader's review:** [eval/CREATOR_REVIEW.md](eval/CREATOR_REVIEW.md)
 
 **A booking platform for creators who work from a cafe table:** tarot readers, mehendi artists,
 caricaturists, palm readers, nail artists and musicians.

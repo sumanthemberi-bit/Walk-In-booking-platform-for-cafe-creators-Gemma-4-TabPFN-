@@ -3,6 +3,9 @@
 Usage:  python bench.py gemma4:e2b gemma4:e4b
 Writes bench_results.csv with every output, so you can rate quality 1-5 by hand.
 """
+import os as _os
+_os.chdir(_os.path.dirname(_os.path.abspath(__file__)))  # run from this script's folder, wherever it was started from
+
 import csv
 import sys
 import time
