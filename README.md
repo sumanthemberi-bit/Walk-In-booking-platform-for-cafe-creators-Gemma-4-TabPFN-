@@ -1,5 +1,7 @@
 # Walk-In
 
+**Live:** [walkin.tailf0269d.ts.net](https://walkin.tailf0269d.ts.net) · **Write-up:** on DEV ✏️ · **Evaluation:** [eval/EVAL.md](eval/EVAL.md) · **Hand review:** [eval/REVIEW.md](eval/REVIEW.md)
+
 **A booking platform for creators who work from a cafe table:** tarot readers, mehendi artists,
 caricaturists, palm readers, nail artists and musicians.
 
@@ -38,7 +40,7 @@ Both models run on the same machine as the app, so client notes are never sent t
 
 The evaluation scripts measure both: `evaluate_messages.py` runs a fixed set of situations through
 several prompt versions and checks every draft, and `evaluate_slots.py` backtests TabPFN against simple
-averages.
+averages. Results: [eval/EVAL.md](eval/EVAL.md); a person's ratings of the drafts: [eval/REVIEW.md](eval/REVIEW.md).
 
 ## Tech
 
@@ -55,6 +57,7 @@ pages when the connection drops.
 | `notify.py` | Booking emails and notifications |
 | `templates/`, `static/` | Pages and icons |
 | `evaluate_messages.py`, `evaluate_slots.py`, `bench.py` | Measuring the AI |
+| `make_eval_reports.py`, `eval/` | Builds the evaluation and hand-review pages from the results |
 
 ## Run it locally
 
@@ -68,8 +71,6 @@ python -m uvicorn server:app --port 8000
 ```
 
 Then open http://localhost:8000. On Windows, `start.bat` does all of this in one double-click.
-
-To run it 24/7 on a free cloud server, see [deploy/DEPLOY.md](deploy/DEPLOY.md).
 
 The sample files (`sample_sittings.csv`, `sample_messages.txt`) are made-up test data. Creators
 tagged **Demo** on the site are dummy profiles that show how the marketplace works.
