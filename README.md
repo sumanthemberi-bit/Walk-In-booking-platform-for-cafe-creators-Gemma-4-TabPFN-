@@ -69,6 +69,8 @@ python -m uvicorn server:app --port 8000
 
 Then open http://localhost:8000. On Windows, `start.bat` does all of this in one double-click.
 
+To run it 24/7 on a free cloud server, see [deploy/DEPLOY.md](deploy/DEPLOY.md).
+
 The sample files (`sample_sittings.csv`, `sample_messages.txt`) are made-up test data. Creators
 tagged **Demo** on the site are dummy profiles that show how the marketplace works.
 
