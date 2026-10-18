@@ -9,6 +9,14 @@ Built for the [Hacktoberfest Open-Source AI Challenge](https://dev.to/challenges
 (Week 2: Side Hustle), around a friend who reads tarot at three cafes in Mumbai and ran his bookings
 out of WhatsApp chats and memory.
 
+<img width="750" height="531" alt="Picture1" src="https://github.com/user-attachments/assets/86e0feda-50f1-4fea-9315-e7accf14f054" />
+
+
+<img width="595" height="577" alt="Picture2" src="https://github.com/user-attachments/assets/c231e012-0f47-4d81-b554-b1536d5913c7" />
+
+
+
+
 ## What it does
 
 **For customers**
